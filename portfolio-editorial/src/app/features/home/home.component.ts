@@ -2,7 +2,6 @@ import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@ang
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 import { NavigationComponent } from '../../shared/components/navigation/navigation.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
@@ -12,7 +11,7 @@ import { AboutComponent } from './sections/about/about.component';
 import { ExperienceComponent } from './sections/experience/experience.component';
 import { ContactComponent } from './sections/contact/contact.component';
 
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+gsap.registerPlugin(ScrollTrigger);
 
 @Component({
   selector: 'app-home',
@@ -27,34 +26,8 @@ gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
     ExperienceComponent,
     ContactComponent
   ],
-  template: `
-    <app-navigation />
-    
-    <main class="home-container" #homeContainer>
-      <app-portal />
-      
-      <div class="content-wrapper" #contentWrapper>
-        <app-works />
-        <app-about />
-        <app-experience />
-        <app-contact />
-        <app-footer />
-      </div>
-    </main>
-  `,
-  styles: [`
-    .home-container {
-      position: relative;
-      background: var(--bg-dark);
-    }
-
-    .content-wrapper {
-      position: relative;
-      z-index: 10;
-      background: var(--bg-dark);
-      will-change: transform;
-    }
-  `]
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss'
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('homeContainer') homeContainer!: ElementRef;
@@ -63,24 +36,31 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   private triggers: ScrollTrigger[] = [];
 
   ngAfterViewInit(): void {
-    this.initTransitionAnimation();
+    // Delay to ensure portal ScrollTrigger is initialized first
+    requestAnimationFrame(() => {
+      this.initContentEntrance();
+    });
   }
 
-  private initTransitionAnimation(): void {
+  private initContentEntrance(): void {
     const content = this.contentWrapper.nativeElement;
 
-    const st = ScrollTrigger.create({
-      trigger: content,
-      start: 'top 90%',
-      end: 'top 30%',
-      scrub: 1,
-      animation: gsap.from(content, {
-        x: '100vw',
-        ease: 'power2.inOut'
-      })
+    // Slide content in from right as user scrolls past portal
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: content,
+        start: 'top 95%',
+        end: 'top 40%',
+        scrub: 1.5,
+      }
     });
 
-    this.triggers.push(st);
+    tl.fromTo(content,
+      { x: '60vw', opacity: 0.5 },
+      { x: 0, opacity: 1, ease: 'power2.out' }
+    );
+
+    this.triggers.push(tl.scrollTrigger!);
   }
 
   ngOnDestroy(): void {

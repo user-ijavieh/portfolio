@@ -1,0 +1,77 @@
+// Mixins — Editorial Portfolio
+
+@mixin section-container($padding: var(--space-section-md)) {
+  padding: $padding var(--space-gutter);
+  max-width: var(--space-max-width);
+  margin: 0 auto;
+}
+
+@mixin section-label {
+  display: block;
+  font-family: var(--font-main);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+
+@mixin editorial-title($size: var(--text-4xl)) {
+  font-family: var(--font-display);
+  font-size: $size;
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--text-light);
+  letter-spacing: -0.02em;
+}
+
+@mixin body-text {
+  font-family: var(--font-main);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--text-muted);
+  max-width: 65ch;
+}
+
+@mixin underline-hover($color: var(--accent)) {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: $color;
+    transition: width 0.4s var(--ease-out-expo);
+  }
+
+  &:hover::after {
+    width: 100%;
+  }
+}
+
+@mixin image-hover-zoom {
+  overflow: hidden;
+
+  img {
+    transition: transform 1.2s var(--ease-out-expo);
+  }
+
+  &:hover img {
+    transform: scale(1.06);
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}

@@ -1,0 +1,34 @@
+<section class="experience-section" id="experience" #experienceSection>
+  <div class="experience-header" #header>
+    <span class="section-label">Experience</span>
+    <h2 class="section-title">Path & capabilities</h2>
+  </div>
+
+  <div class="experience-content">
+    <div class="experience-skills">
+      <h3 class="subsection-title">Stack</h3>
+      <ul class="skills-list" #skillsList>
+        @for (skill of technicalSkills; track skill) {
+          <li class="skill-item">{{ skill }}</li>
+        }
+      </ul>
+    </div>
+
+    <div class="experience-timeline" #timeline>
+      <h3 class="subsection-title">Timeline</h3>
+      <div class="timeline-track">
+        <div class="timeline-line"></div>
+        @for (item of timelineItems; track item.period) {
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <span class="timeline-period">{{ item.period }}</span>
+              <h4 class="timeline-role">{{ item.role }}</h4>
+              <span class="timeline-context">{{ item.context }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>

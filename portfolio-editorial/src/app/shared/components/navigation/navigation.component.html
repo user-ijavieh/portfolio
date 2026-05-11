@@ -1,0 +1,9 @@
+<nav class="nav" #navEl [class.visible]="isVisible">
+  <div class="nav-brand">Portfolio</div>
+  <ul class="nav-links">
+    <li><a href="#works" (click)="scrollTo($event, 'works')">Works</a></li>
+    <li><a href="#about" (click)="scrollTo($event, 'about')">About</a></li>
+    <li><a href="#experience" (click)="scrollTo($event, 'experience')">Experience</a></li>
+    <li><a href="#contact" (click)="scrollTo($event, 'contact')">Contact</a></li>
+  </ul>
+</nav>

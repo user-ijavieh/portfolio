@@ -1,0 +1,23 @@
+.footer {
+  padding: 4rem var(--space-gutter);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--space-max-width);
+  margin: 0 auto;
+}
+
+.footer-text {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+}
+
+.footer-year {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  color: var(--text-dim);
+}

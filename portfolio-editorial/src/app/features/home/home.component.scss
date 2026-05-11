@@ -1,0 +1,11 @@
+.home-container {
+  position: relative;
+  background: var(--bg-dark);
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 10;
+  background: var(--bg-dark);
+  will-change: transform, opacity;
+}
