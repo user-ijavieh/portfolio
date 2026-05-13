@@ -27,7 +27,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/assets"
             ],
             "styles": [
               "src/styles.scss"
@@ -71,6 +72,11 @@
             "development": {
               "buildTarget": "portfolio-editorial:build:development"
             }
+          },
+          "options": {
+            "allowedHosts": [
+              ".trycloudflare.com"
+            ]
           },
           "defaultConfiguration": "development"
         },

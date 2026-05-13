@@ -21,14 +21,20 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.initVisibilityTrigger();
+    // Defer until portal pin layout is calculated so trigger position is accurate
+    requestAnimationFrame(() => {
+      this.initVisibilityTrigger();
+    });
   }
 
   private initVisibilityTrigger(): void {
-    // Show nav after scrolling past the viewport height (portal section)
+    const contentWrapper = document.querySelector('.content-wrapper');
+    if (!contentWrapper) return;
+
+    // Show nav exactly when content-wrapper reaches top — i.e., right after portal ends
     this.scrollTrigger = ScrollTrigger.create({
-      trigger: document.body,
-      start: '100vh top',
+      trigger: contentWrapper,
+      start: 'top top',
       onEnter: () => this.showNav(),
       onLeaveBack: () => this.hideNav()
     });
