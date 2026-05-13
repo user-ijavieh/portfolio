@@ -1,8 +1,14 @@
 <section class="portal-section" #portalSection>
-  <!-- Background image revealed by expanding mask -->
+  <!-- Background video (wallpaper-2) -->
   <div class="portal-bg" #bgImage>
-    <img src="https://picsum.photos/seed/architecture-dark/1920/1080" alt="" />
+    <video autoplay muted loop playsinline preload="auto" src="assets/videos/wallpaper-2.mp4"></video>
   </div>
+
+  <!-- Chroma key video source (wallpaper-1) -->
+  <video #chromaVideo hidden autoplay muted loop playsinline preload="auto" src="assets/videos/wallpaper-1.mp4"></video>
+
+  <!-- WebGL canvas: renders wallpaper-1 with green screen transparent -->
+  <canvas #chromaCanvas class="portal-chroma-canvas"></canvas>
 
   <div class="portal-content">
     <h1 class="portal-title" #title>
@@ -11,23 +17,6 @@
     </h1>
     <p class="portal-subtitle" #subtitle>Portfolio &mdash; 2025</p>
   </div>
-
-  <!-- SVG mask overlay: image surface with expanding circular hole -->
-  <svg class="portal-mask-svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <mask id="portal-mask">
-        <rect width="100" height="100" fill="white" />
-        <circle #maskCircle cx="50" cy="50" r="6" fill="black" />
-      </mask>
-    </defs>
-    <image
-      href="https://picsum.photos/seed/moody-portrait/1920/1080"
-      width="100"
-      height="100"
-      mask="url(#portal-mask)"
-      preserveAspectRatio="xMidYMid slice"
-    />
-  </svg>
 
   <div class="portal-hint" #hint>
     <div class="hint-line"></div>
