@@ -48,8 +48,7 @@
 .portal-section.needs-interaction {
   .portal-loader {
     pointer-events: auto;
-    background: rgba(5, 5, 5, 0.65);
-    backdrop-filter: blur(6px);
+    background: var(--bg-dark);
   }
 }
 
@@ -57,9 +56,6 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0s 0.6s;
 
   video {
     width: 100%;
@@ -90,9 +86,6 @@
   pointer-events: none;
   display: block;
   will-change: transform;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.6s ease, visibility 0s 0.6s;
 }
 
 .portal-hint {
@@ -186,7 +179,7 @@
   position: absolute;
   inset: 0;
   z-index: 4;
-  opacity: 1;
+  opacity: 0;
   pointer-events: none;
 
   .title-small,
@@ -329,16 +322,6 @@
   }
 }
 
-/* Ready state: reveal everything simultaneously */
 .portal-section.ready {
-  .portal-bg,
-  .portal-chroma-canvas,
-  .portal-hint,
-  .portal-scroll-wrap,
-  .portal-title,
-  .portal-year {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.6s ease, visibility 0s;
-  }
+  /* No CSS transitions needed — everything is already visible behind the loader */
 }

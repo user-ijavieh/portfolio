@@ -24,6 +24,11 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('loader') loader!: ElementRef;
   @ViewChild('interactionHint') interactionHint!: ElementRef;
   @ViewChild('portalTitle') portalTitle!: ElementRef;
+  @ViewChild('titleSmall') titleSmall!: ElementRef;
+  @ViewChild('titleLeft') titleLeft!: ElementRef;
+  @ViewChild('titleAmp') titleAmp!: ElementRef;
+  @ViewChild('titleRight') titleRight!: ElementRef;
+  @ViewChild('portalYear') portalYear!: ElementRef;
   @ViewChild('scrollIndicator') scrollIndicator!: ElementRef;
 
   portalState: PortalState = 'loading';
@@ -54,17 +59,37 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
 
     this.initPortalAnimation();
 
-    // 1. Wait for both videos to have loaded their first frame.
+    // Wait for both videos to have loaded their first frame, then start everything
     Promise.all([
       this.whenLoadedData(bgVideo),
       this.whenLoadedData(chromaVideo)
     ]).then(() => {
       if (this.isDestroyed) return;
 
-      // Always show interaction hint first — no autoplay attempt
-      this.portalState = 'needsInteraction';
-      this.portalSection?.nativeElement.classList.add('needs-interaction');
-      this.registerInteractionRetry();
+      // Try autoplay immediately — videos are muted so this usually works
+      Promise.allSettled([
+        bgVideo.play(),
+        chromaVideo.play()
+      ]).then((results) => {
+        if (this.isDestroyed) return;
+
+        const anyBlocked = results.some(r =>
+          r.status === 'rejected' && (r.reason as any)?.name === 'NotAllowedError'
+        );
+
+        if (anyBlocked) {
+          // Browser blocked autoplay — show hint and wait for interaction
+          this.portalState = 'needsInteraction';
+          this.portalSection?.nativeElement.classList.add('needs-interaction');
+          this.registerInteractionRetry();
+        } else {
+          // Autoplay worked — start WebGL immediately, keep loader visible
+          this.initWebGLChroma();
+          this.portalState = 'needsInteraction';
+          this.portalSection?.nativeElement.classList.add('needs-interaction');
+          this.registerRevealOnly();
+        }
+      });
     });
   }
 
@@ -107,6 +132,7 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     const retry = () => {
       if (this.portalState !== 'needsInteraction' || this.isDestroyed) return;
 
+      // Videos weren't autoplaying — start them now, then init WebGL and reveal
       Promise.all([
         this.bgVideo?.nativeElement.play().catch(() => {}),
         this.chromaVideo?.nativeElement.play().catch(() => {})
@@ -137,27 +163,51 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     };
   }
 
+  private registerRevealOnly(): void {
+    const reveal = () => {
+      if (this.portalState !== 'needsInteraction' || this.isDestroyed) return;
+      this.setReady();
+
+      if (this.autoplayRetryCleanup) {
+        this.autoplayRetryCleanup();
+        this.autoplayRetryCleanup = null;
+      }
+    };
+
+    document.addEventListener('click', reveal, { once: true });
+    document.addEventListener('keydown', reveal, { once: true });
+    document.addEventListener('scroll', reveal, { once: true });
+    this.autoplayRetryCleanup = () => {
+      document.removeEventListener('click', reveal);
+      document.removeEventListener('keydown', reveal);
+      document.removeEventListener('scroll', reveal);
+    };
+  }
+
   private setReady(): void {
     if (this.portalState === 'ready') return;
     this.portalState = 'ready';
 
-    // Start WebGL now that both videos are guaranteed playing
-    this.initWebGLChroma();
+    // Start WebGL if not already running
+    if (!this.gl) {
+      this.initWebGLChroma();
+    }
 
-    // Wait two animation frames to guarantee WebGL has rendered at least
-    // one valid frame before removing the loader. This eliminates the flash
-    // where wallpaper-2 becomes visible before wallpaper-1.
+    // Give WebGL one frame to render before fading loader
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         if (this.isDestroyed) return;
 
-        // Hide loader overlay
+        // Hide loader overlay (fades out over 0.6s via CSS)
         this.loader?.nativeElement.classList.add('hidden');
 
-        // Reveal the entire portal simultaneously
+        // Mark section ready
         const section = this.portalSection.nativeElement;
         section.classList.remove('needs-interaction');
         section.classList.add('ready');
+
+        // Notify nav and other listeners
+        document.dispatchEvent(new CustomEvent('portal:entered'));
 
         // Trigger entrance animations
         this.initEntranceAnimation();
@@ -174,11 +224,53 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   private initEntranceAnimation(): void {
     const tl = gsap.timeline({ delay: 0.2 });
 
-    tl.from(this.hint.nativeElement, {
-      opacity: 0,
-      duration: 1.5,
-      ease: 'power2.out'
-    });
+    // 0. Reveal title container (parent is opacity: 0 in CSS)
+    tl.to(this.portalTitle.nativeElement, {
+      opacity: 1,
+      duration: 0.1
+    }, 0);
+
+    // 1. "entre el" — from top-left
+    tl.fromTo(this.titleSmall.nativeElement,
+      { opacity: 0, y: -15, x: -10 },
+      { opacity: 1, y: 0, x: 0, duration: 1.0, ease: 'expo.out' }
+    , 0.2);
+
+    // 2. "Diseño" — from left
+    tl.fromTo(this.titleLeft.nativeElement,
+      { opacity: 0, x: -40 },
+      { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }
+    , 0.4);
+
+    // 3. "y" — from below
+    tl.fromTo(this.titleAmp.nativeElement,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+    , 0.6);
+
+    // 4. "Desarrollo" — from right
+    tl.fromTo(this.titleRight.nativeElement,
+      { opacity: 0, x: 40 },
+      { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }
+    , 0.7);
+
+    // 5. Year — subtle fade
+    tl.fromTo(this.portalYear.nativeElement,
+      { opacity: 0 },
+      { opacity: 1, duration: 1.0, ease: 'power2.out' }
+    , 1.0);
+
+    // 6. Scroll indicator — from below
+    tl.fromTo(this.scrollIndicator.nativeElement,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+    , 1.1);
+
+    // 7. "Scroll to enter" hint — last
+    tl.fromTo(this.hint.nativeElement,
+      { opacity: 0 },
+      { opacity: 1, duration: 1.5, ease: 'power2.out' }
+    , 1.3);
   }
 
   private initPortalAnimation(): void {

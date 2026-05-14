@@ -21,8 +21,10 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    // Show nav immediately on load with entrance animation
-    this.showNav();
+    // Wait for portal interaction before showing nav
+    document.addEventListener('portal:entered', () => {
+      this.showNav();
+    }, { once: true });
 
     // Defer until portal pin layout is calculated so trigger position is accurate
     requestAnimationFrame(() => {
