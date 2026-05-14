@@ -20,8 +20,11 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bgImage') bgImage!: ElementRef;
   @ViewChild('chromaCanvas') chromaCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('chromaVideo') chromaVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;
 
   private triggers: ScrollTrigger[] = [];
+  private autoplayRetryCleanup: (() => void) | null = null;
+  private isDestroyed = false;
 
   // WebGL resources
   private gl: WebGLRenderingContext | null = null;
@@ -33,13 +36,74 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   private aPositionLoc: number = -1;
   private aUvLoc: number = -1;
   private uVideoLoc: WebGLUniformLocation | null = null;
+  private onContextLost: ((e: Event) => void) | null = null;
+  private onContextRestored: (() => void) | null = null;
 
   constructor(private ngZone: NgZone) {}
 
   ngAfterViewInit(): void {
-    this.initWebGLChroma();
+    const bgVideo = this.bgVideo.nativeElement;
+    const chromaVideo = this.chromaVideo.nativeElement;
+
+    // Attempt autoplay immediately
+    this.ensureAutoplay(bgVideo);
+    this.ensureAutoplay(chromaVideo);
+
+    // Initialize DOM-based animations right away
     this.initEntranceAnimation();
     this.initPortalAnimation();
+
+    // Start WebGL as soon as the first frame of the chroma video is available
+    this.whenLoadedData(chromaVideo).then(() => {
+      if (this.isDestroyed) return;
+      this.initWebGLChroma();
+    });
+  }
+
+  private whenLoadedData(video: HTMLVideoElement): Promise<void> {
+    return new Promise((resolve) => {
+      if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        resolve();
+        return;
+      }
+      const onReady = () => resolve();
+      const onErr = () => resolve();
+      video.addEventListener('loadeddata', onReady, { once: true });
+      video.addEventListener('error', onErr, { once: true });
+    });
+  }
+
+  private ensureAutoplay(video: HTMLVideoElement): void {
+    const attempt = () => {
+      video.play().catch((err: any) => {
+        const isNotAllowed = err?.name === 'NotAllowedError';
+        const isNotSupported = err?.name === 'NotSupportedError';
+
+        if (!this.autoplayRetryCleanup) {
+          const retry = () => {
+            this.bgVideo?.nativeElement.play().catch(() => {});
+            this.chromaVideo?.nativeElement.play().catch(() => {});
+            if (this.autoplayRetryCleanup) {
+              this.autoplayRetryCleanup();
+              this.autoplayRetryCleanup = null;
+            }
+          };
+          document.addEventListener('click', retry, { once: true });
+          document.addEventListener('keydown', retry, { once: true });
+          document.addEventListener('scroll', retry, { once: true });
+          this.autoplayRetryCleanup = () => {
+            document.removeEventListener('click', retry);
+            document.removeEventListener('keydown', retry);
+            document.removeEventListener('scroll', retry);
+          };
+        }
+
+        if (isNotSupported) {
+          console.warn('Autoplay not supported for this video format:', video.currentSrc || 'unknown source');
+        }
+      });
+    };
+    attempt();
   }
 
   private initEntranceAnimation(): void {
@@ -117,8 +181,13 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   }
 
   private initWebGLChroma(): void {
+    if (this.isDestroyed) return;
+
     const canvas = this.chromaCanvas.nativeElement;
     const video = this.chromaVideo.nativeElement;
+
+    // Clean up previous context if re-initializing
+    this.cleanupWebGL(false);
 
     const gl = canvas.getContext('webgl', {
       alpha: true,
@@ -234,8 +303,19 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    // Start video playback (safeguard for autoplay policies)
-    video.play().catch(err => console.warn('Chroma video autoplay failed:', err));
+    // Handle context loss / restore
+    this.onContextLost = (e: Event) => {
+      e.preventDefault();
+      if (this.chromaRafId !== null) {
+        cancelAnimationFrame(this.chromaRafId);
+        this.chromaRafId = null;
+      }
+    };
+    this.onContextRestored = () => {
+      this.initWebGLChroma();
+    };
+    canvas.addEventListener('webglcontextlost', this.onContextLost);
+    canvas.addEventListener('webglcontextrestored', this.onContextRestored);
 
     // Kick off render loop outside Angular zone
     this.ngZone.runOutsideAngular(() => {
@@ -274,12 +354,13 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   }
 
   private renderChroma(video: HTMLVideoElement): void {
+    if (this.isDestroyed) return;
     const gl = this.gl;
     if (!gl) return;
 
     this.resizeCanvas();
 
-    if (video.readyState >= video.HAVE_CURRENT_DATA) {
+    if (video.readyState >= video.HAVE_CURRENT_DATA && !video.paused && !video.ended) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.chromaTexture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
@@ -297,11 +378,62 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     this.chromaRafId = requestAnimationFrame(() => this.renderChroma(video));
   }
 
+  private cleanupWebGL(loseContext: boolean): void {
+    const gl = this.gl;
+    const canvas = this.chromaCanvas?.nativeElement;
+    if (canvas) {
+      if (this.onContextLost) {
+        canvas.removeEventListener('webglcontextlost', this.onContextLost);
+        this.onContextLost = null;
+      }
+      if (this.onContextRestored) {
+        canvas.removeEventListener('webglcontextrestored', this.onContextRestored);
+        this.onContextRestored = null;
+      }
+    }
+    if (gl) {
+      if (this.chromaProgram) {
+        gl.deleteProgram(this.chromaProgram);
+        this.chromaProgram = null;
+      }
+      if (this.positionBuffer) {
+        gl.deleteBuffer(this.positionBuffer);
+        this.positionBuffer = null;
+      }
+      if (this.uvBuffer) {
+        gl.deleteBuffer(this.uvBuffer);
+        this.uvBuffer = null;
+      }
+      if (this.chromaTexture) {
+        gl.deleteTexture(this.chromaTexture);
+        this.chromaTexture = null;
+      }
+      if (loseContext) {
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+      }
+      this.gl = null;
+    }
+  }
+
   ngOnDestroy(): void {
+    this.isDestroyed = true;
     this.triggers.forEach(t => t.kill());
+
+    if (this.autoplayRetryCleanup) {
+      this.autoplayRetryCleanup();
+      this.autoplayRetryCleanup = null;
+    }
 
     if (this.chromaRafId !== null) {
       cancelAnimationFrame(this.chromaRafId);
+      this.chromaRafId = null;
+    }
+
+    const bgVideo = this.bgVideo?.nativeElement;
+    if (bgVideo) {
+      bgVideo.pause();
+      bgVideo.src = '';
+      bgVideo.load();
     }
 
     const video = this.chromaVideo?.nativeElement;
@@ -311,13 +443,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       video.load();
     }
 
-    const gl = this.gl;
-    if (gl) {
-      if (this.chromaProgram) gl.deleteProgram(this.chromaProgram);
-      if (this.positionBuffer) gl.deleteBuffer(this.positionBuffer);
-      if (this.uvBuffer) gl.deleteBuffer(this.uvBuffer);
-      if (this.chromaTexture) gl.deleteTexture(this.chromaTexture);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
-    }
+    this.cleanupWebGL(true);
   }
 }

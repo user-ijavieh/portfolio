@@ -1,11 +1,16 @@
 <section class="portal-section" #portalSection>
   <!-- Background video (wallpaper-2) -->
   <div class="portal-bg" #bgImage>
-    <video autoplay muted loop playsinline preload="auto" src="assets/videos/wallpaper-2.mp4"></video>
+    <video #bgVideo autoplay muted loop playsinline preload="auto">
+      <source src="assets/videos/wallpaper-2.webm" type="video/webm">
+      <source src="assets/videos/wallpaper-2.mp4" type="video/mp4">
+    </video>
   </div>
 
   <!-- Chroma key video source (wallpaper-1) -->
-  <video #chromaVideo hidden autoplay muted loop playsinline preload="auto" src="assets/videos/wallpaper-1.mp4"></video>
+  <video #chromaVideo hidden autoplay muted loop playsinline preload="auto">
+    <source src="assets/videos/wallpaper-1.mp4" type="video/mp4">
+  </video>
 
   <!-- WebGL canvas: renders wallpaper-1 with green screen transparent -->
   <canvas #chromaCanvas class="portal-chroma-canvas"></canvas>
