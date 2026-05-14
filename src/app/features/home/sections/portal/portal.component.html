@@ -1,27 +1,30 @@
 <section class="portal-section" #portalSection>
+  <!-- Loading / Interaction overlay -->
+  <div class="portal-loader" #loader>
+    <div class="loader-text">
+      Cargando<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+    <div class="portal-interaction-hint" #interactionHint>
+      <div class="hint-line"></div>
+      <span>Tap or scroll to enter</span>
+    </div>
+  </div>
+
   <!-- Background video (wallpaper-2) -->
   <div class="portal-bg" #bgImage>
-    <video #bgVideo autoplay muted loop playsinline preload="auto">
+    <video #bgVideo muted loop playsinline preload="auto">
       <source src="assets/videos/wallpaper-2.webm" type="video/webm">
       <source src="assets/videos/wallpaper-2.mp4" type="video/mp4">
     </video>
   </div>
 
   <!-- Chroma key video source (wallpaper-1) -->
-  <video #chromaVideo hidden autoplay muted loop playsinline preload="auto">
+  <video #chromaVideo class="chroma-source" muted loop playsinline preload="auto">
     <source src="assets/videos/wallpaper-1.mp4" type="video/mp4">
   </video>
 
   <!-- WebGL canvas: renders wallpaper-1 with green screen transparent -->
   <canvas #chromaCanvas class="portal-chroma-canvas"></canvas>
-
-  <div class="portal-content">
-    <h1 class="portal-title" #title>
-      <span class="line">Creative</span>
-      <span class="line">Developer</span>
-    </h1>
-    <p class="portal-subtitle" #subtitle>Portfolio &mdash; 2025</p>
-  </div>
 
   <div class="portal-hint" #hint>
     <div class="hint-line"></div>

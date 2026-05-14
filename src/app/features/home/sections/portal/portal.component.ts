@@ -5,6 +5,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+type PortalState = 'loading' | 'needsInteraction' | 'ready';
+
 @Component({
   selector: 'app-portal',
   standalone: true,
@@ -14,17 +16,20 @@ gsap.registerPlugin(ScrollTrigger);
 })
 export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('portalSection') portalSection!: ElementRef;
-  @ViewChild('title') title!: ElementRef;
-  @ViewChild('subtitle') subtitle!: ElementRef;
   @ViewChild('hint') hint!: ElementRef;
   @ViewChild('bgImage') bgImage!: ElementRef;
   @ViewChild('chromaCanvas') chromaCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('chromaVideo') chromaVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;
+  @ViewChild('loader') loader!: ElementRef;
+  @ViewChild('interactionHint') interactionHint!: ElementRef;
+
+  portalState: PortalState = 'loading';
 
   private triggers: ScrollTrigger[] = [];
   private autoplayRetryCleanup: (() => void) | null = null;
   private isDestroyed = false;
+  private chromaFramesRendered = 0;
 
   // WebGL resources
   private gl: WebGLRenderingContext | null = null;
@@ -45,18 +50,41 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     const bgVideo = this.bgVideo.nativeElement;
     const chromaVideo = this.chromaVideo.nativeElement;
 
-    // Attempt autoplay immediately
-    this.ensureAutoplay(bgVideo);
-    this.ensureAutoplay(chromaVideo);
-
-    // Initialize DOM-based animations right away
-    this.initEntranceAnimation();
     this.initPortalAnimation();
 
-    // Start WebGL as soon as the first frame of the chroma video is available
-    this.whenLoadedData(chromaVideo).then(() => {
+    // 1. Wait for both videos to have loaded their first frame.
+    Promise.all([
+      this.whenLoadedData(bgVideo),
+      this.whenLoadedData(chromaVideo)
+    ]).then(() => {
       if (this.isDestroyed) return;
-      this.initWebGLChroma();
+
+      // 2. Attempt autoplay on both videos.
+      Promise.allSettled([
+        this.ensureAutoplay(bgVideo),
+        this.ensureAutoplay(chromaVideo)
+      ]).then((results) => {
+        if (this.isDestroyed) return;
+
+        const anyBlocked = results.some(r =>
+          r.status === 'rejected' && (r.reason as any)?.name === 'NotAllowedError'
+        );
+
+        if (anyBlocked) {
+          this.portalState = 'needsInteraction';
+          this.portalSection?.nativeElement.classList.add('needs-interaction');
+          this.registerInteractionRetry();
+        } else {
+          // 3. Wait until both are actually playing before revealing.
+          Promise.all([
+            this.whenPlaying(bgVideo),
+            this.whenPlaying(chromaVideo)
+          ]).then(() => {
+            if (this.isDestroyed) return;
+            this.setReady();
+          });
+        }
+      });
     });
   }
 
@@ -73,60 +101,104 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private ensureAutoplay(video: HTMLVideoElement): void {
-    const attempt = () => {
-      video.play().catch((err: any) => {
-        const isNotAllowed = err?.name === 'NotAllowedError';
-        const isNotSupported = err?.name === 'NotSupportedError';
+  private whenPlaying(video: HTMLVideoElement): Promise<void> {
+    return new Promise((resolve) => {
+      if (!video.paused && video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        resolve();
+        return;
+      }
+      const onPlaying = () => resolve();
+      const onErr = () => resolve();
+      video.addEventListener('playing', onPlaying, { once: true });
+      video.addEventListener('error', onErr, { once: true });
+    });
+  }
 
-        if (!this.autoplayRetryCleanup) {
-          const retry = () => {
-            this.bgVideo?.nativeElement.play().catch(() => {});
-            this.chromaVideo?.nativeElement.play().catch(() => {});
-            if (this.autoplayRetryCleanup) {
-              this.autoplayRetryCleanup();
-              this.autoplayRetryCleanup = null;
-            }
-          };
-          document.addEventListener('click', retry, { once: true });
-          document.addEventListener('keydown', retry, { once: true });
-          document.addEventListener('scroll', retry, { once: true });
-          this.autoplayRetryCleanup = () => {
-            document.removeEventListener('click', retry);
-            document.removeEventListener('keydown', retry);
-            document.removeEventListener('scroll', retry);
-          };
-        }
+  private ensureAutoplay(video: HTMLVideoElement): Promise<void> {
+    return video.play().catch((err: any) => {
+      if (err?.name === 'NotSupportedError') {
+        console.warn('Autoplay not supported for this video format:', video.currentSrc || 'unknown source');
+      }
+      throw err;
+    });
+  }
 
-        if (isNotSupported) {
-          console.warn('Autoplay not supported for this video format:', video.currentSrc || 'unknown source');
+  private registerInteractionRetry(): void {
+    const retry = () => {
+      if (this.portalState !== 'needsInteraction' || this.isDestroyed) return;
+
+      Promise.all([
+        this.bgVideo?.nativeElement.play().catch(() => {}),
+        this.chromaVideo?.nativeElement.play().catch(() => {})
+      ]).then(() => {
+        if (this.isDestroyed) return;
+        Promise.all([
+          this.whenPlaying(this.bgVideo.nativeElement),
+          this.whenPlaying(this.chromaVideo.nativeElement)
+        ]).then(() => {
+          if (this.isDestroyed) return;
+          this.setReady();
+        });
+      });
+
+      if (this.autoplayRetryCleanup) {
+        this.autoplayRetryCleanup();
+        this.autoplayRetryCleanup = null;
+      }
+    };
+
+    document.addEventListener('click', retry, { once: true });
+    document.addEventListener('keydown', retry, { once: true });
+    document.addEventListener('scroll', retry, { once: true });
+    this.autoplayRetryCleanup = () => {
+      document.removeEventListener('click', retry);
+      document.removeEventListener('keydown', retry);
+      document.removeEventListener('scroll', retry);
+    };
+  }
+
+  private setReady(): void {
+    if (this.portalState === 'ready') return;
+    this.portalState = 'ready';
+
+    // Start WebGL now that both videos are guaranteed playing
+    this.initWebGLChroma();
+
+    // Wait two animation frames to guarantee WebGL has rendered at least
+    // one valid frame before removing the loader. This eliminates the flash
+    // where wallpaper-2 becomes visible before wallpaper-1.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.isDestroyed) return;
+
+        // Hide loader overlay
+        this.loader?.nativeElement.classList.add('hidden');
+
+        // Reveal the entire portal simultaneously
+        const section = this.portalSection.nativeElement;
+        section.classList.remove('needs-interaction');
+        section.classList.add('ready');
+
+        // Trigger entrance animations
+        this.initEntranceAnimation();
+
+        // Clean up interaction listeners
+        if (this.autoplayRetryCleanup) {
+          this.autoplayRetryCleanup();
+          this.autoplayRetryCleanup = null;
         }
       });
-    };
-    attempt();
+    });
   }
 
   private initEntranceAnimation(): void {
     const tl = gsap.timeline({ delay: 0.2 });
 
-    tl.from(this.title.nativeElement.querySelectorAll('.line'), {
-      y: 100,
-      opacity: 0,
-      duration: 1.6,
-      stagger: 0.12,
-      ease: 'power3.out'
-    })
-    .from(this.subtitle.nativeElement, {
-      y: 30,
-      opacity: 0,
-      duration: 1.2,
-      ease: 'power3.out'
-    }, '-=1')
-    .from(this.hint.nativeElement, {
+    tl.from(this.hint.nativeElement, {
       opacity: 0,
       duration: 1.5,
       ease: 'power2.out'
-    }, '-=0.6');
+    });
   }
 
   private initPortalAnimation(): void {
@@ -139,7 +211,7 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       scrollTrigger: {
         trigger: section,
         start: 'top top',
-        end: '+=600%',
+        end: '+=100%',
         pin: true,
         scrub: 1.2
       }
@@ -157,16 +229,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       ease: 'none',
       duration: 1
     }, 0)
-    // Phase 3: Text fades early
-    .to(this.title.nativeElement, {
-      opacity: 0,
-      y: -40,
-      duration: 0.3
-    }, 0.15)
-    .to(this.subtitle.nativeElement, {
-      opacity: 0,
-      duration: 0.2
-    }, 0.2)
     .to(hint, {
       opacity: 0,
       duration: 0.1
@@ -360,10 +422,12 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
 
     this.resizeCanvas();
 
-    if (video.readyState >= video.HAVE_CURRENT_DATA && !video.paused && !video.ended) {
+    const hasData = video.readyState >= video.HAVE_CURRENT_DATA && !video.paused && !video.ended;
+    if (hasData) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.chromaTexture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      this.chromaFramesRendered++;
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
