@@ -21,6 +21,9 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
+    // Show nav immediately on load with entrance animation
+    this.showNav();
+
     // Defer until portal pin layout is calculated so trigger position is accurate
     requestAnimationFrame(() => {
       this.initVisibilityTrigger();
@@ -31,12 +34,12 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
     const contentWrapper = document.querySelector('.content-wrapper');
     if (!contentWrapper) return;
 
-    // Show nav exactly when content-wrapper reaches top — i.e., right after portal ends
+    // Toggle nav background when scrolling past the portal
     this.scrollTrigger = ScrollTrigger.create({
       trigger: contentWrapper,
       start: 'top top',
-      onEnter: () => this.showNav(),
-      onLeaveBack: () => this.hideNav()
+      onEnter: () => this.navEl?.nativeElement.classList.add('scrolled'),
+      onLeaveBack: () => this.navEl?.nativeElement.classList.remove('scrolled')
     });
   }
 

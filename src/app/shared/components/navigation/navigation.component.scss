@@ -4,27 +4,34 @@
   left: 0;
   right: 0;
   z-index: 100;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: 1.5rem var(--space-gutter);
+  padding: 1.25rem var(--space-gutter);
   opacity: 0;
   transform: translateY(-20px);
   pointer-events: none;
-  background: rgba(5, 5, 5, 0.8);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo), background 0.4s ease;
 
   &.visible {
+    opacity: 1;
+    transform: translateY(0);
     pointer-events: all;
+  }
+
+  &.scrolled {
+    background: rgba(5, 5, 5, 0.85);
+    backdrop-filter: blur(12px);
   }
 }
 
 .nav-brand {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 400;
   color: var(--text-light);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .nav-links {
@@ -33,31 +40,72 @@
   gap: 2.5rem;
 }
 
-.nav-links a {
-  font-family: var(--font-main);
-  font-size: var(--text-sm);
-  font-weight: 400;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
-  transition: color 0.3s ease;
-  position: relative;
+.nav-links-center {
+  justify-content: center;
+  gap: 3rem;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: var(--accent);
-    transition: width 0.4s var(--ease-out-expo);
-  }
-
-  &:hover {
-    color: var(--text-light);
+  a {
+    font-family: var(--font-main);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+    position: relative;
 
     &::after {
-      width: 100%;
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--accent);
+      transition: width 0.4s var(--ease-out-expo);
     }
+
+    &:hover {
+      color: var(--text-light);
+
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.nav-links-social {
+  justify-content: flex-end;
+
+  a {
+    font-family: var(--font-main);
+    font-size: var(--text-xs);
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: var(--accent);
+    }
+  }
+}
+
+/* Responsive: collapse social links on narrow screens */
+@media (max-width: 768px) {
+  .nav {
+    grid-template-columns: auto 1fr;
+    padding: 1rem var(--space-gutter);
+  }
+
+  .nav-links-center {
+    justify-content: flex-end;
+    gap: 1.5rem;
+  }
+
+  .nav-links-social {
+    display: none;
   }
 }

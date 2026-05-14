@@ -23,6 +23,8 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;
   @ViewChild('loader') loader!: ElementRef;
   @ViewChild('interactionHint') interactionHint!: ElementRef;
+  @ViewChild('portalTitle') portalTitle!: ElementRef;
+  @ViewChild('scrollIndicator') scrollIndicator!: ElementRef;
 
   portalState: PortalState = 'loading';
 
@@ -59,32 +61,10 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     ]).then(() => {
       if (this.isDestroyed) return;
 
-      // 2. Attempt autoplay on both videos.
-      Promise.allSettled([
-        this.ensureAutoplay(bgVideo),
-        this.ensureAutoplay(chromaVideo)
-      ]).then((results) => {
-        if (this.isDestroyed) return;
-
-        const anyBlocked = results.some(r =>
-          r.status === 'rejected' && (r.reason as any)?.name === 'NotAllowedError'
-        );
-
-        if (anyBlocked) {
-          this.portalState = 'needsInteraction';
-          this.portalSection?.nativeElement.classList.add('needs-interaction');
-          this.registerInteractionRetry();
-        } else {
-          // 3. Wait until both are actually playing before revealing.
-          Promise.all([
-            this.whenPlaying(bgVideo),
-            this.whenPlaying(chromaVideo)
-          ]).then(() => {
-            if (this.isDestroyed) return;
-            this.setReady();
-          });
-        }
-      });
+      // Always show interaction hint first — no autoplay attempt
+      this.portalState = 'needsInteraction';
+      this.portalSection?.nativeElement.classList.add('needs-interaction');
+      this.registerInteractionRetry();
     });
   }
 
@@ -206,6 +186,8 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     const hint = this.hint.nativeElement;
     const bgImage = this.bgImage.nativeElement;
     const chromaCanvasEl = this.chromaCanvas.nativeElement;
+    const title = this.portalTitle?.nativeElement;
+    const scrollInd = this.scrollIndicator?.nativeElement;
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -229,9 +211,22 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       ease: 'none',
       duration: 1
     }, 0)
+    // Phase 3: UI elements fade out early as scroll begins
     .to(hint, {
       opacity: 0,
       duration: 0.1
+    }, 0)
+    .to(title, {
+      opacity: 0,
+      y: -30,
+      ease: 'power2.in',
+      duration: 0.2
+    }, 0)
+    .to(scrollInd, {
+      opacity: 0,
+      y: 20,
+      ease: 'power2.in',
+      duration: 0.15
     }, 0)
     // Phase 4: Entire section fades out at the very end
     .to(section, {

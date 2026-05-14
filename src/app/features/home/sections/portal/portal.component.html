@@ -1,9 +1,6 @@
 <section class="portal-section" #portalSection>
-  <!-- Loading / Interaction overlay -->
+  <!-- Interaction overlay — always shows until user engages -->
   <div class="portal-loader" #loader>
-    <div class="loader-text">
-      Cargando<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
-    </div>
     <div class="portal-interaction-hint" #interactionHint>
       <div class="hint-line"></div>
       <span>Tap or scroll to enter</span>
@@ -29,5 +26,23 @@
   <div class="portal-hint" #hint>
     <div class="hint-line"></div>
     <span>Scroll to enter</span>
+  </div>
+
+  <!-- Scroll indicator with deco circle — left side, mid-height -->
+  <div class="portal-scroll-wrap" #scrollIndicator>
+    <div class="portal-deco-ring"></div>
+    <span class="scroll-text">Scroll down</span>
+    <div class="scroll-line"></div>
+  </div>
+
+  <!-- Decorative year — top right, subtle watermark -->
+  <div class="portal-year"><span class="year-asterisk">×</span>2025</div>
+
+  <!-- Hero title overlay — asymmetric editorial around the portal circle -->
+  <div class="portal-title" #portalTitle>
+    <span class="title-small">entre el</span>
+    <span class="title-large title-left">Diseño</span>
+    <span class="title-amp">y</span>
+    <span class="title-large title-right">Desarrollo</span>
   </div>
 </section>
