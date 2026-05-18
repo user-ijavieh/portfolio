@@ -271,18 +271,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     , 1.3);
   }
 
-  /** Expose animation targets so the parent can drive scroll animations */
-  getAnimationTargets() {
-    return {
-      section: this.portalSection?.nativeElement,
-      hint: this.hint?.nativeElement,
-      bgImage: this.bgImage?.nativeElement,
-      chromaCanvas: this.chromaCanvas?.nativeElement,
-      title: this.portalTitle?.nativeElement,
-      scrollInd: this.scrollIndicator?.nativeElement
-    };
-  }
-
   private initWebGLChroma(): void {
     if (this.isDestroyed) return;
 

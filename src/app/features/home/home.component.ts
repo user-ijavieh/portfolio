@@ -34,57 +34,92 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('wipeStage') wipeStage!: ElementRef;
   @ViewChild('wipePortal') wipePortal!: ElementRef;
   @ViewChild('wipeContent') wipeContent!: ElementRef;
-  @ViewChild(PortalComponent) portalComponent!: PortalComponent;
 
   private triggers: ScrollTrigger[] = [];
 
   ngAfterViewInit(): void {
     requestAnimationFrame(() => {
-      this.initHorizontalWipe();
+      this.initScrollSequence();
     });
   }
 
-  private initHorizontalWipe(): void {
+  private initScrollSequence(): void {
     const wipeStage = this.wipeStage.nativeElement;
     const wipePortal = this.wipePortal.nativeElement;
     const wipeContent = this.wipeContent.nativeElement;
-    const p = this.portalComponent.getAnimationTargets();
+
+    // Query portal elements directly
+    const chromaCanvas = wipePortal.querySelector('.portal-chroma-canvas') as HTMLElement;
+    const bgImage = wipePortal.querySelector('.portal-bg') as HTMLElement;
+    const hint = wipePortal.querySelector('.portal-hint') as HTMLElement;
+    const title = wipePortal.querySelector('.portal-title') as HTMLElement;
+    const scrollInd = wipePortal.querySelector('.portal-scroll-wrap') as HTMLElement;
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: wipeStage,
         start: 'top top',
-        end: '+=200%',
+        end: '+=300%',
         pin: true,
-        scrub: 2.5,
+        scrub: 1.2,
         anticipatePin: 1,
-        onLeave: () => ScrollTrigger.refresh()
+        fastScrollEnd: true,
+        onLeave: () => ScrollTrigger.refresh(),
+        snap: {
+          snapTo: (progress: number) => {
+            // If user has entered wipe zone, force completion
+            if (progress > 0.58) return 1;
+            // If user scrolls back before wipe, stay free
+            if (progress < 0.5) return progress;
+            // Transition zone: snap to nearest extreme
+            return progress > 0.54 ? 1 : progress;
+          },
+          duration: { min: 0.4, max: 1.2 },
+          delay: 0,
+          ease: 'power2.inOut'
+        }
       }
     });
 
     /* ── Phase 1: Pass through the portal ── */
-    if (p.chromaCanvas) {
-      tl.fromTo(p.chromaCanvas,
+    if (chromaCanvas) {
+      tl.fromTo(chromaCanvas,
         { scale: 1, transformOrigin: 'center center' },
         { scale: 40, ease: 'power2.inOut', duration: 0.5 },
         0
       );
     }
-    if (p.bgImage) {
-      tl.to(p.bgImage, { scale: 1.15, ease: 'none', duration: 1 }, 0);
+    if (bgImage) {
+      tl.fromTo(bgImage,
+        { scale: 1 },
+        { scale: 1.15, ease: 'none', duration: 1 },
+        0
+      );
     }
-    if (p.hint) {
-      tl.to(p.hint, { opacity: 0, duration: 0.1 }, 0);
+    if (hint) {
+      tl.fromTo(hint,
+        { opacity: 1 },
+        { opacity: 0, ease: 'power2.inOut', duration: 0.15 },
+        0
+      );
     }
-    if (p.title) {
-      tl.to(p.title, { opacity: 0, y: -30, ease: 'power2.in', duration: 0.2 }, 0);
+    if (title) {
+      tl.fromTo(title,
+        { opacity: 1, y: 0 },
+        { opacity: 0, y: -30, ease: 'power2.inOut', duration: 0.15 },
+        0
+      );
     }
-    if (p.scrollInd) {
-      tl.to(p.scrollInd, { opacity: 0, y: 20, ease: 'power2.in', duration: 0.15 }, 0);
+    if (scrollInd) {
+      tl.fromTo(scrollInd,
+        { opacity: 1, y: 0 },
+        { opacity: 0, y: 20, ease: 'power2.inOut', duration: 0.15 },
+        0
+      );
     }
 
     /* ── Phase 2: Hold ── */
-    // (empty gap so wallpaper-2 is fully visible before wipe starts)
+    // (empty gap so wallpaper-2 is fully visible)
 
     /* ── Phase 3: Horizontal wipe ── */
     tl.fromTo(wipePortal,
