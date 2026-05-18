@@ -1,13 +1,18 @@
 <app-navigation />
 
 <main class="home-container" #homeContainer>
-  <app-portal />
+  <!-- Horizontal wipe stage: portal slides left, content enters from right -->
+  <div class="wipe-stage" #wipeStage>
+    <div class="wipe-portal" #wipePortal>
+      <app-portal />
+    </div>
 
-  <div class="content-wrapper" #contentWrapper>
-    <app-works />
-    <app-about />
-    <app-experience />
-    <app-contact />
-    <app-footer />
+    <div class="wipe-content" #wipeContent>
+      <app-works />
+      <app-about />
+      <app-experience />
+      <app-contact />
+      <app-footer />
+    </div>
   </div>
 </main>

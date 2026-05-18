@@ -31,33 +31,72 @@ gsap.registerPlugin(ScrollTrigger);
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('homeContainer') homeContainer!: ElementRef;
-  @ViewChild('contentWrapper') contentWrapper!: ElementRef;
+  @ViewChild('wipeStage') wipeStage!: ElementRef;
+  @ViewChild('wipePortal') wipePortal!: ElementRef;
+  @ViewChild('wipeContent') wipeContent!: ElementRef;
+  @ViewChild(PortalComponent) portalComponent!: PortalComponent;
 
   private triggers: ScrollTrigger[] = [];
 
   ngAfterViewInit(): void {
-    // Delay to ensure portal ScrollTrigger is initialized first
     requestAnimationFrame(() => {
-      this.initContentEntrance();
+      this.initHorizontalWipe();
     });
   }
 
-  private initContentEntrance(): void {
-    const content = this.contentWrapper.nativeElement;
+  private initHorizontalWipe(): void {
+    const wipeStage = this.wipeStage.nativeElement;
+    const wipePortal = this.wipePortal.nativeElement;
+    const wipeContent = this.wipeContent.nativeElement;
+    const p = this.portalComponent.getAnimationTargets();
 
-    // Slide content in from right as user scrolls past portal
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: content,
-        start: 'top 95%',
-        end: 'top 40%',
-        scrub: 1.5,
+        trigger: wipeStage,
+        start: 'top top',
+        end: '+=200%',
+        pin: true,
+        scrub: 2.5,
+        anticipatePin: 1,
+        onLeave: () => ScrollTrigger.refresh()
       }
     });
 
-    tl.fromTo(content,
-      { x: '60vw', opacity: 0.5 },
-      { x: 0, opacity: 1, ease: 'power2.out' }
+    /* ── Phase 1: Pass through the portal ── */
+    if (p.chromaCanvas) {
+      tl.fromTo(p.chromaCanvas,
+        { scale: 1, transformOrigin: 'center center' },
+        { scale: 40, ease: 'power2.inOut', duration: 0.5 },
+        0
+      );
+    }
+    if (p.bgImage) {
+      tl.to(p.bgImage, { scale: 1.15, ease: 'none', duration: 1 }, 0);
+    }
+    if (p.hint) {
+      tl.to(p.hint, { opacity: 0, duration: 0.1 }, 0);
+    }
+    if (p.title) {
+      tl.to(p.title, { opacity: 0, y: -30, ease: 'power2.in', duration: 0.2 }, 0);
+    }
+    if (p.scrollInd) {
+      tl.to(p.scrollInd, { opacity: 0, y: 20, ease: 'power2.in', duration: 0.15 }, 0);
+    }
+
+    /* ── Phase 2: Hold ── */
+    // (empty gap so wallpaper-2 is fully visible before wipe starts)
+
+    /* ── Phase 3: Horizontal wipe ── */
+    tl.fromTo(wipePortal,
+      { x: 0 },
+      { x: '-25vw', ease: 'power2.inOut', duration: 0.8 },
+      '+=0.5'
+    );
+
+    tl.fromTo(wipeContent,
+      { x: '100vw' },
+      { x: 0, ease: 'power2.inOut', duration: 0.8 },
+      '<'
     );
 
     this.triggers.push(tl.scrollTrigger!);

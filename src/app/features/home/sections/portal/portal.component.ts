@@ -57,8 +57,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     const bgVideo = this.bgVideo.nativeElement;
     const chromaVideo = this.chromaVideo.nativeElement;
 
-    this.initPortalAnimation();
-
     // Wait for both videos to have loaded their first frame, then start everything
     Promise.all([
       this.whenLoadedData(bgVideo),
@@ -273,60 +271,16 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     , 1.3);
   }
 
-  private initPortalAnimation(): void {
-    const section = this.portalSection.nativeElement;
-    const hint = this.hint.nativeElement;
-    const bgImage = this.bgImage.nativeElement;
-    const chromaCanvasEl = this.chromaCanvas.nativeElement;
-    const title = this.portalTitle?.nativeElement;
-    const scrollInd = this.scrollIndicator?.nativeElement;
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: section,
-        start: 'top top',
-        end: '+=100%',
-        pin: true,
-        scrub: 1.2
-      }
-    });
-
-    // Phase 1: Zoom into the window until wallpaper-1 disappears off-screen
-    tl.fromTo(chromaCanvasEl,
-      { scale: 1, transformOrigin: 'center center' },
-      { scale: 40, ease: 'power2.inOut', duration: 0.5 },
-      0
-    )
-    // Phase 2: Background video scales subtly for depth
-    .to(bgImage, {
-      scale: 1.15,
-      ease: 'none',
-      duration: 1
-    }, 0)
-    // Phase 3: UI elements fade out early as scroll begins
-    .to(hint, {
-      opacity: 0,
-      duration: 0.1
-    }, 0)
-    .to(title, {
-      opacity: 0,
-      y: -30,
-      ease: 'power2.in',
-      duration: 0.2
-    }, 0)
-    .to(scrollInd, {
-      opacity: 0,
-      y: 20,
-      ease: 'power2.in',
-      duration: 0.15
-    }, 0)
-    // Phase 4: Entire section fades out at the very end
-    .to(section, {
-      opacity: 0,
-      duration: 0.08
-    }, 0.95);
-
-    this.triggers.push(tl.scrollTrigger!);
+  /** Expose animation targets so the parent can drive scroll animations */
+  getAnimationTargets() {
+    return {
+      section: this.portalSection?.nativeElement,
+      hint: this.hint?.nativeElement,
+      bgImage: this.bgImage?.nativeElement,
+      chromaCanvas: this.chromaCanvas?.nativeElement,
+      title: this.portalTitle?.nativeElement,
+      scrollInd: this.scrollIndicator?.nativeElement
+    };
   }
 
   private initWebGLChroma(): void {
