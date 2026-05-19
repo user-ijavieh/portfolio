@@ -1,12 +1,14 @@
 <nav class="nav" #navEl [class.visible]="isVisible">
-  <div class="nav-brand">Javier Remedios</div>
+  <div class="nav-brand" (click)="scrollToTop()">Javier Remedios</div>
   <ul class="nav-links nav-links-center">
-    <li><a href="#about" (click)="scrollTo($event, 'about')">About</a></li>
-    <li><a href="#works" (click)="scrollTo($event, 'works')">Works</a></li>
-    <li><a href="#experience" (click)="scrollTo($event, 'experience')">Experience</a></li>
-    <li><a href="#contact" (click)="scrollTo($event, 'contact')">Contact</a></li>
+    <li><a href="#works" (click)="scrollTo($event, 'works')">Proyectos</a></li>
+    <li><a href="#about" (click)="scrollTo($event, 'about')">Sobre mí</a></li>
+    <li><a href="#experience" (click)="scrollTo($event, 'experience')">Experiencia</a></li>
+    <li><a href="#contact" (click)="scrollTo($event, 'contact')">Contacto</a></li>
   </ul>
   <ul class="nav-links nav-links-social">
-    <li><a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+    <li><a href="mailto:hello@javierremedios.com" target="_blank" rel="noopener noreferrer">Gmail</a></li>
+    <li><a href="https://github.com" target="_blank" rel="noopener noreferrer">Github</a></li>
+    <li><a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
   </ul>
 </nav>

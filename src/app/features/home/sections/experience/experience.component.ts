@@ -24,19 +24,19 @@ export class ExperienceComponent implements AfterViewInit, OnDestroy {
 
   timelineItems = [
     {
-      period: '2023 — Present',
-      role: 'Senior Creative Developer',
-      context: 'Independent'
+      period: '2023 — Presente',
+      role: 'Desarrollador Creativo Senior',
+      context: 'Independiente'
     },
     {
       period: '2021 — 2023',
-      role: 'Frontend Engineer',
-      context: 'Digital Agency'
+      role: 'Ingeniero Frontend',
+      context: 'Agencia Digital'
     },
     {
       period: '2019 — 2021',
-      role: 'UI Designer',
-      context: 'Product Studio'
+      role: 'Diseñador UI',
+      context: 'Estudio de Producto'
     }
   ];
 

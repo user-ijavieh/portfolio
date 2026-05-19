@@ -1,12 +1,12 @@
 <section class="experience-section" id="experience" #experienceSection>
   <div class="experience-header" #header>
-    <span class="section-label">Experience</span>
-    <h2 class="section-title">Path & capabilities</h2>
+    <span class="section-label">Experiencia</span>
+    <h2 class="section-title">Trayectoria y capacidades</h2>
   </div>
 
   <div class="experience-content">
     <div class="experience-skills">
-      <h3 class="subsection-title">Stack</h3>
+      <h3 class="subsection-title">Tecnologías</h3>
       <ul class="skills-list" #skillsList>
         @for (skill of technicalSkills; track skill) {
           <li class="skill-item">{{ skill }}</li>
@@ -15,7 +15,7 @@
     </div>
 
     <div class="experience-timeline" #timeline>
-      <h3 class="subsection-title">Timeline</h3>
+      <h3 class="subsection-title">Trayectoria</h3>
       <div class="timeline-track">
         <div class="timeline-line"></div>
         @for (item of timelineItems; track item.period) {

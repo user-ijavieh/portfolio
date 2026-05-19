@@ -9,56 +9,56 @@ export class DataService {
     {
       id: '01',
       title: 'Aether',
-      category: 'Brand Identity',
+      category: 'Identidad de marca',
       year: '2024',
-      description: 'Visual system for an architecture studio focused on sustainable materials and negative space.',
+      description: 'Sistema visual para un estudio de arquitectura enfocado en materiales sostenibles y el espacio negativo.',
       image: 'https://picsum.photos/seed/aether/800/1000',
-      tags: ['Branding', 'Typography', 'Print']
+      tags: ['Branding', 'Tipografía', 'Print']
     },
     {
       id: '02',
       title: 'Nocturne',
-      category: 'Web Design',
+      category: 'Diseño web',
       year: '2024',
-      description: 'Immersive editorial platform for long-form journalism with cinematic scroll experiences.',
+      description: 'Plataforma editorial inmersiva para periodismo de largo formato con experiencias de scroll cinematográficas.',
       image: 'https://picsum.photos/seed/nocturne/900/700',
       tags: ['UI/UX', 'GSAP', 'Editorial']
     },
     {
       id: '03',
       title: 'Solstice',
-      category: 'Art Direction',
+      category: 'Dirección de arte',
       year: '2023',
-      description: 'Campaign visuals for a fragrance house exploring light, shadow, and material texture.',
+      description: 'Visuales de campaña para una casa de fragancias que explora la luz, la sombra y la textura material.',
       image: 'https://picsum.photos/seed/solstice/700/900',
-      tags: ['Art Direction', 'Photography', 'Campaign']
+      tags: ['Dirección de arte', 'Fotografía', 'Campaña']
     },
     {
       id: '04',
       title: 'Velum',
-      category: 'Digital Product',
+      category: 'Producto digital',
       year: '2023',
-      description: 'Privacy-first messaging interface with gestural interactions and ephemeral design.',
+      description: 'Interfaz de mensajería con privacidad como prioridad, interacciones gestuales y diseño efímero.',
       image: 'https://picsum.photos/seed/velum/800/600',
-      tags: ['Product Design', 'Motion', 'Privacy']
+      tags: ['Diseño de producto', 'Motion', 'Privacidad']
     },
     {
       id: '05',
       title: 'Kairos',
-      category: 'Exhibition',
+      category: 'Exhibición',
       year: '2023',
-      description: 'Spatial design and digital installations for a contemporary art museum retrospective.',
+      description: 'Diseño espacial e instalaciones digitales para una retrospectiva en un museo de arte contemporáneo.',
       image: 'https://picsum.photos/seed/kairos/600/800',
-      tags: ['Spatial', 'Installation', 'Interactive']
+      tags: ['Espacial', 'Instalación', 'Interactivo']
     },
     {
       id: '06',
       title: 'Oblique',
       category: 'Editorial',
       year: '2022',
-      description: 'Independent magazine redesign challenging conventional grid systems and reading rhythms.',
+      description: 'Rediseño de una revista independiente que desafía los sistemas de grid convencionales y los ritmos de lectura.',
       image: 'https://picsum.photos/seed/oblique/900/800',
-      tags: ['Editorial', 'Typography', 'Grid']
+      tags: ['Editorial', 'Tipografía', 'Grid']
     }
   ];
 

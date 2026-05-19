@@ -2,8 +2,9 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild } fr
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 @Component({
   selector: 'app-navigation',
@@ -15,18 +16,13 @@ gsap.registerPlugin(ScrollTrigger);
 export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navEl') navEl!: ElementRef;
 
-  isVisible = false;
+  isVisible = true;
   private scrollTrigger?: ScrollTrigger;
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    // Wait for portal interaction before showing nav
-    document.addEventListener('portal:entered', () => {
-      this.showNav();
-    }, { once: true });
-
-    // Defer until portal pin layout is calculated so trigger position is accurate
+    // Nav is always visible and clickable from the start
     requestAnimationFrame(() => {
       this.initVisibilityTrigger();
     });
@@ -75,6 +71,14 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
         ease: 'power3.inOut'
       });
     }
+  }
+
+  scrollToTop(): void {
+    gsap.to(window, {
+      duration: 1.2,
+      scrollTo: { y: 0 },
+      ease: 'power3.inOut'
+    });
   }
 
   ngOnDestroy(): void {
