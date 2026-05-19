@@ -29,7 +29,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('titleAmp') titleAmp!: ElementRef;
   @ViewChild('titleRight') titleRight!: ElementRef;
   @ViewChild('portalYear') portalYear!: ElementRef;
-  @ViewChild('scrollIndicator') scrollIndicator!: ElementRef;
 
   portalState: PortalState = 'loading';
 
@@ -235,7 +234,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       this.titleSmall.nativeElement,
       this.titleAmp.nativeElement,
       this.portalYear.nativeElement,
-      this.scrollIndicator.nativeElement,
       this.hint.nativeElement
     ], { opacity: 0 });
     gsap.set(this.titleLeft.nativeElement, { x: -30 });
@@ -261,8 +259,8 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       this.portalYear.nativeElement
     ], { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.3);
 
-    // Beat 3: UI affordances (scroll indicator + hint)
-    tl.to([this.scrollIndicator.nativeElement, this.hint.nativeElement],
+    // Beat 3: UI affordances (hint)
+    tl.to(this.hint.nativeElement,
       { opacity: 1, duration: 0.8, ease: 'power2.out' },
       0.6
     );
@@ -284,7 +282,6 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
       this.titleSmall.nativeElement,
       this.titleAmp.nativeElement,
       this.portalYear.nativeElement,
-      this.scrollIndicator.nativeElement,
       this.hint.nativeElement
     ], { opacity: 1, x: 0, y: 0 });
   }
