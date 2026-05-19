@@ -31,68 +31,60 @@ gsap.registerPlugin(ScrollTrigger);
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
   @ViewChild('homeContainer') homeContainer!: ElementRef;
-  @ViewChild('wipeStage') wipeStage!: ElementRef;
-  @ViewChild('wipePortal') wipePortal!: ElementRef;
-  @ViewChild('wipeContent') wipeContent!: ElementRef;
+  @ViewChild('heroStage') heroStage!: ElementRef;
 
   private triggers: ScrollTrigger[] = [];
 
   ngAfterViewInit(): void {
     requestAnimationFrame(() => {
-      this.initScrollSequence();
+      this.initHeroSequence();
     });
   }
 
-  private initScrollSequence(): void {
-    const wipeStage = this.wipeStage.nativeElement;
-    const wipePortal = this.wipePortal.nativeElement;
-    const wipeContent = this.wipeContent.nativeElement;
+  private initHeroSequence(): void {
+    const heroStage = this.heroStage.nativeElement;
 
-    // Query portal elements directly
-    const chromaCanvas = wipePortal.querySelector('.portal-chroma-canvas') as HTMLElement;
-    const bgImage = wipePortal.querySelector('.portal-bg') as HTMLElement;
-    const hint = wipePortal.querySelector('.portal-hint') as HTMLElement;
-    const title = wipePortal.querySelector('.portal-title') as HTMLElement;
-    const scrollInd = wipePortal.querySelector('.portal-scroll-wrap') as HTMLElement;
+    const chromaCanvas = heroStage.querySelector('.portal-chroma-canvas') as HTMLElement;
+    const bgImage = heroStage.querySelector('.portal-bg') as HTMLElement;
+    const hint = heroStage.querySelector('.portal-hint') as HTMLElement;
+    const title = heroStage.querySelector('.portal-title') as HTMLElement;
+    const scrollInd = heroStage.querySelector('.portal-scroll-wrap') as HTMLElement;
+    const portalSection = heroStage.querySelector('.portal-section') as HTMLElement;
 
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: wipeStage,
+        trigger: heroStage,
         start: 'top top',
-        end: '+=300%',
+        end: '+=250%',
         pin: true,
         scrub: 1.2,
         anticipatePin: 1,
         fastScrollEnd: true,
-        onLeave: () => ScrollTrigger.refresh(),
         snap: {
           snapTo: (progress: number) => {
-            // If user has entered wipe zone, force completion
-            if (progress > 0.58) return 1;
-            // If user scrolls back before wipe, stay free
-            if (progress < 0.5) return progress;
-            // Transition zone: snap to nearest extreme
-            return progress > 0.54 ? 1 : progress;
+            if (progress > 0.55) return 1;
+            if (progress < 0.45) return progress;
+            return progress > 0.5 ? 1 : progress;
           },
-          duration: { min: 0.4, max: 1.2 },
+          duration: { min: 0.4, max: 1.0 },
           delay: 0,
           ease: 'power2.inOut'
         }
       }
     });
 
-    /* ── Phase 1: Pass through the portal ── */
+    /* ── Phase 1: Immersive zoom through portal (0% - 40%) ── */
     if (chromaCanvas) {
       tl.fromTo(chromaCanvas,
         { scale: 1, transformOrigin: 'center center' },
-        { scale: 40, ease: 'power2.inOut', duration: 0.5 },
+        { scale: 40, ease: 'power3.inOut', duration: 0.4 },
         0
       );
     }
     if (bgImage) {
       tl.fromTo(bgImage,
         { scale: 1 },
-        { scale: 1.15, ease: 'none', duration: 1 },
+        { scale: 1.08, ease: 'power1.in', duration: 0.8 },
         0
       );
     }
@@ -118,23 +110,23 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       );
     }
 
-    /* ── Phase 2: Hold ── */
-    // (empty gap so wallpaper-2 is fully visible)
+    /* ── Phase 2: Hold on wallpaper (40% - 65%) ── */
 
-    /* ── Phase 3: Horizontal wipe ── */
-    tl.fromTo(wipePortal,
-      { x: 0 },
-      { x: '-25vw', ease: 'power2.inOut', duration: 0.8 },
-      '+=0.5'
-    );
-
-    tl.fromTo(wipeContent,
-      { x: '100vw' },
-      { x: 0, ease: 'power2.inOut', duration: 0.8 },
-      '<'
-    );
+    /* ── Phase 3: Hero exits, content revealed (65% - 100%) ── */
+    if (portalSection) {
+      tl.fromTo(portalSection,
+        { opacity: 1, x: 0 },
+        { opacity: 0, x: '-15vw', ease: 'power2.inOut', duration: 0.35 },
+        0.65
+      );
+    }
 
     this.triggers.push(tl.scrollTrigger!);
+
+    // Refresh all positions with the pin spacer now established,
+    // then signal child sections that they can safely init their triggers
+    ScrollTrigger.refresh();
+    document.dispatchEvent(new CustomEvent('st:ready'));
   }
 
   ngOnDestroy(): void {

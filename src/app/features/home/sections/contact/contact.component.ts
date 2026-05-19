@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy, HostListener } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -18,66 +18,80 @@ export class ContactComponent implements AfterViewInit, OnDestroy {
   @ViewChild('email') email!: ElementRef;
   @ViewChild('links') links!: ElementRef;
 
-  private triggers: ScrollTrigger[] = [];
-  private quickToX: any;
-  private quickToY: any;
+  private ctx: gsap.Context | null = null;
+  private quickToX: ReturnType<typeof gsap.quickTo> | null = null;
+  private quickToY: ReturnType<typeof gsap.quickTo> | null = null;
+  private magneticCleanup: (() => void) | null = null;
 
   ngAfterViewInit(): void {
+    document.addEventListener('st:ready', () => this.initAnimations(), { once: true });
+    this.initMagneticEffect();
+  }
+
+  private initAnimations(): void {
+    if (this.ctx) return;
     const section = this.contactSection.nativeElement;
 
-    // Reveal animations
-    const elements = [
-      this.label.nativeElement,
-      this.title.nativeElement,
-      this.desc.nativeElement,
-      this.email.nativeElement,
-      this.links.nativeElement
-    ];
+    this.ctx = gsap.context(() => {
+      const elements = [
+        this.label.nativeElement,
+        this.title.nativeElement,
+        this.desc.nativeElement,
+        this.email.nativeElement,
+        this.links.nativeElement
+      ];
 
-    elements.forEach((el, i) => {
-      const tl = gsap.from(el, {
-        y: 50,
+      gsap.from(elements, {
+        y: 40,
         opacity: 0,
-        duration: 1.2,
-        delay: i * 0.1,
+        duration: 1.0,
+        stagger: 0.1,
         ease: 'power3.out',
         scrollTrigger: {
           trigger: section,
           start: 'top 75%',
-          toggleActions: 'play none none none'
+          toggleActions: 'play none none reset'
         }
       });
-      if (tl.scrollTrigger) this.triggers.push(tl.scrollTrigger);
     });
-
-    // Magnetic email effect
-    this.initMagneticEffect();
   }
 
   private initMagneticEffect(): void {
     const el = this.email.nativeElement;
     const strength = 0.4;
 
+    // Cache rect; update on resize instead of recalculating every mousemove
+    let rect = el.getBoundingClientRect();
+    const resizeObs = new ResizeObserver(() => { rect = el.getBoundingClientRect(); });
+    resizeObs.observe(el);
+
     this.quickToX = gsap.quickTo(el, 'x', { duration: 0.4, ease: 'power3.out' });
     this.quickToY = gsap.quickTo(el, 'y', { duration: 0.4, ease: 'power3.out' });
 
-    el.addEventListener('mousemove', (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
+    const onMouseMove = (e: MouseEvent) => {
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const distX = (e.clientX - centerX) * strength;
-      const distY = (e.clientY - centerY) * strength;
-      this.quickToX(distX);
-      this.quickToY(distY);
-    });
+      this.quickToX!((e.clientX - centerX) * strength);
+      this.quickToY!((e.clientY - centerY) * strength);
+    };
 
-    el.addEventListener('mouseleave', () => {
-      this.quickToX(0);
-      this.quickToY(0);
-    });
+    const onMouseLeave = () => {
+      this.quickToX!(0);
+      this.quickToY!(0);
+    };
+
+    el.addEventListener('mousemove', onMouseMove);
+    el.addEventListener('mouseleave', onMouseLeave);
+
+    this.magneticCleanup = () => {
+      el.removeEventListener('mousemove', onMouseMove);
+      el.removeEventListener('mouseleave', onMouseLeave);
+      resizeObs.disconnect();
+    };
   }
 
   ngOnDestroy(): void {
-    this.triggers.forEach(t => t.kill());
+    this.ctx?.revert();
+    this.magneticCleanup?.();
   }
 }

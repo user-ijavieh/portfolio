@@ -34,6 +34,7 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   portalState: PortalState = 'loading';
 
   private triggers: ScrollTrigger[] = [];
+  private entranceTl: gsap.core.Timeline | null = null;
   private autoplayRetryCleanup: (() => void) | null = null;
   private isDestroyed = false;
   private chromaFramesRendered = 0;
@@ -220,55 +221,72 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   }
 
   private initEntranceAnimation(): void {
+    // If user already started scrolling, jump directly to final visible state
+    if (window.scrollY > 10) {
+      this.setEntranceFinalState();
+      return;
+    }
+
+    // Set initial states via JS so GSAP has full control (avoids CSS conflicts)
+    gsap.set(this.portalTitle.nativeElement, { opacity: 1 });
+    gsap.set([
+      this.titleLeft.nativeElement,
+      this.titleRight.nativeElement,
+      this.titleSmall.nativeElement,
+      this.titleAmp.nativeElement,
+      this.portalYear.nativeElement,
+      this.scrollIndicator.nativeElement,
+      this.hint.nativeElement
+    ], { opacity: 0 });
+    gsap.set(this.titleLeft.nativeElement, { x: -30 });
+    gsap.set(this.titleRight.nativeElement, { x: 30 });
+
     const tl = gsap.timeline({ delay: 0.2 });
+    this.entranceTl = tl;
 
-    // 0. Reveal title container (parent is opacity: 0 in CSS)
-    tl.to(this.portalTitle.nativeElement, {
-      opacity: 1,
-      duration: 0.1
-    }, 0);
+    // Beat 1: main titles slide in from opposite sides
+    tl.to(this.titleLeft.nativeElement,
+      { opacity: 1, x: 0, duration: 1.0, ease: 'expo.out' },
+      0
+    );
+    tl.to(this.titleRight.nativeElement,
+      { opacity: 1, x: 0, duration: 1.0, ease: 'expo.out' },
+      0.15
+    );
 
-    // 1. "entre el" — from top-left
-    tl.fromTo(this.titleSmall.nativeElement,
-      { opacity: 0, y: -15, x: -10 },
-      { opacity: 1, y: 0, x: 0, duration: 1.0, ease: 'expo.out' }
-    , 0.2);
+    // Beat 2: supporting text fades in
+    tl.to([
+      this.titleSmall.nativeElement,
+      this.titleAmp.nativeElement,
+      this.portalYear.nativeElement
+    ], { opacity: 1, duration: 0.8, ease: 'power2.out' }, 0.3);
 
-    // 2. "Diseño" — from left
-    tl.fromTo(this.titleLeft.nativeElement,
-      { opacity: 0, x: -40 },
-      { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }
-    , 0.4);
+    // Beat 3: UI affordances (scroll indicator + hint)
+    tl.to([this.scrollIndicator.nativeElement, this.hint.nativeElement],
+      { opacity: 1, duration: 0.8, ease: 'power2.out' },
+      0.6
+    );
 
-    // 3. "y" — from below
-    tl.fromTo(this.titleAmp.nativeElement,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-    , 0.6);
+    // On first scroll, complete entrance immediately so hero pin starts from clean state
+    const onScroll = () => {
+      if (this.entranceTl?.isActive()) {
+        this.entranceTl.progress(1);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { once: true, passive: true });
+  }
 
-    // 4. "Desarrollo" — from right
-    tl.fromTo(this.titleRight.nativeElement,
-      { opacity: 0, x: 40 },
-      { opacity: 1, x: 0, duration: 1.2, ease: 'expo.out' }
-    , 0.7);
-
-    // 5. Year — subtle fade
-    tl.fromTo(this.portalYear.nativeElement,
-      { opacity: 0 },
-      { opacity: 1, duration: 1.0, ease: 'power2.out' }
-    , 1.0);
-
-    // 6. Scroll indicator — from below
-    tl.fromTo(this.scrollIndicator.nativeElement,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-    , 1.1);
-
-    // 7. "Scroll to enter" hint — last
-    tl.fromTo(this.hint.nativeElement,
-      { opacity: 0 },
-      { opacity: 1, duration: 1.5, ease: 'power2.out' }
-    , 1.3);
+  private setEntranceFinalState(): void {
+    gsap.set([
+      this.portalTitle.nativeElement,
+      this.titleLeft.nativeElement,
+      this.titleRight.nativeElement,
+      this.titleSmall.nativeElement,
+      this.titleAmp.nativeElement,
+      this.portalYear.nativeElement,
+      this.scrollIndicator.nativeElement,
+      this.hint.nativeElement
+    ], { opacity: 1, x: 0, y: 0 });
   }
 
   private initWebGLChroma(): void {
@@ -511,6 +529,7 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.isDestroyed = true;
     this.triggers.forEach(t => t.kill());
+    this.entranceTl?.kill();
 
     if (this.autoplayRetryCleanup) {
       this.autoplayRetryCleanup();

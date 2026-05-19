@@ -4,23 +4,18 @@
   overflow-x: hidden;
 }
 
-/* Horizontal wipe stage: portal + content overlap during transition */
-.wipe-stage {
+/* Hero Stage: 100vh pinned section with portal */
+.hero-stage {
   position: relative;
-}
-
-.wipe-portal {
-  position: relative;
-  height: 100vh;
   width: 100%;
+  height: 100vh;
   z-index: 1;
+  overflow: hidden;
 }
 
-.wipe-content {
+/* Page Content: normal flow, covers hero on scroll */
+.page-content {
   position: relative;
-  z-index: 10;
-  margin-top: -100vh;
+  z-index: 2;
   background: var(--bg-dark);
-  transform: translateX(100vw);
-  will-change: transform;
 }

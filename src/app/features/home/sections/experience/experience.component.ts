@@ -40,71 +40,49 @@ export class ExperienceComponent implements AfterViewInit, OnDestroy {
     }
   ];
 
-  private triggers: ScrollTrigger[] = [];
+  private ctx: gsap.Context | null = null;
 
   ngAfterViewInit(): void {
+    document.addEventListener('st:ready', () => this.initAnimations(), { once: true });
+  }
+
+  private initAnimations(): void {
+    if (this.ctx) return;
     const section = this.experienceSection.nativeElement;
 
-    // Header reveal
-    gsap.from(this.header.nativeElement.children, {
-      y: 40,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.08,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: section,
-        start: 'top 80%',
-        toggleActions: 'play none none none'
-      }
+    this.ctx = gsap.context(() => {
+      // Single trigger for the whole section
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 75%',
+          toggleActions: 'play none none reset'
+        }
+      });
+
+      tl.from(this.header.nativeElement.children, {
+        y: 40, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
+      });
+
+      const skillEls = this.skillsList.nativeElement.querySelectorAll('.skill-item');
+      tl.from(skillEls, {
+        x: -20, opacity: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out'
+      }, '-=0.4');
+
+      const line = this.timeline.nativeElement.querySelector('.timeline-line');
+      const items = this.timeline.nativeElement.querySelectorAll('.timeline-item');
+
+      tl.from(line, {
+        scaleY: 0, transformOrigin: 'top center', duration: 1.0, ease: 'power2.out'
+      }, '-=0.2');
+      // Items start at 40% of the line draw (0.6s after line starts, line total is 1.0s)
+      tl.from(items, {
+        x: 30, opacity: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out'
+      }, '-=0.6');
     });
-
-    // Skills stagger
-    const skillEls = this.skillsList.nativeElement.querySelectorAll('.skill-item');
-    const skillsTl = gsap.from(skillEls, {
-      x: -20,
-      opacity: 0,
-      duration: 0.8,
-      stagger: 0.05,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: this.skillsList.nativeElement,
-        start: 'top 80%',
-        toggleActions: 'play none none none'
-      }
-    });
-    if (skillsTl.scrollTrigger) this.triggers.push(skillsTl.scrollTrigger);
-
-    // Timeline line draw
-    const line = this.timeline.nativeElement.querySelector('.timeline-line');
-    const items = this.timeline.nativeElement.querySelectorAll('.timeline-item');
-
-    const tlTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: this.timeline.nativeElement,
-        start: 'top 75%',
-        toggleActions: 'play none none none'
-      }
-    });
-
-    tlTl.from(line, {
-      scaleY: 0,
-      transformOrigin: 'top',
-      duration: 1.2,
-      ease: 'power2.out'
-    })
-    .from(items, {
-      x: 30,
-      opacity: 0,
-      duration: 1,
-      stagger: 0.2,
-      ease: 'power3.out'
-    }, '-=0.8');
-
-    if (tlTl.scrollTrigger) this.triggers.push(tlTl.scrollTrigger);
   }
 
   ngOnDestroy(): void {
-    this.triggers.forEach(t => t.kill());
+    this.ctx?.revert();
   }
 }

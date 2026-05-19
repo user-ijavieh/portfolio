@@ -1,17 +1,17 @@
 <app-navigation />
 
 <main class="home-container" #homeContainer>
-  <div class="wipe-stage" #wipeStage>
-    <div class="wipe-portal" #wipePortal>
-      <app-portal />
-    </div>
+  <!-- Hero Stage: sección pinnada con portal y wallpaper -->
+  <section class="hero-stage" #heroStage>
+    <app-portal />
+  </section>
 
-    <div class="wipe-content" #wipeContent>
-      <app-works />
-      <app-about />
-      <app-experience />
-      <app-contact />
-      <app-footer />
-    </div>
+  <!-- Page Content: flujo normal, cada sección con su propio scrollTrigger -->
+  <div class="page-content">
+    <app-works />
+    <app-about />
+    <app-experience />
+    <app-contact />
+    <app-footer />
   </div>
 </main>

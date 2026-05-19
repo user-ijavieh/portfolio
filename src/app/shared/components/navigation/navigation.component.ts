@@ -33,12 +33,12 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initVisibilityTrigger(): void {
-    const contentWrapper = document.querySelector('.content-wrapper');
-    if (!contentWrapper) return;
+    const pageContent = document.querySelector('.page-content');
+    if (!pageContent) return;
 
-    // Toggle nav background when scrolling past the portal
+    // Toggle nav background when page content enters the viewport
     this.scrollTrigger = ScrollTrigger.create({
-      trigger: contentWrapper,
+      trigger: pageContent,
       start: 'top top',
       onEnter: () => this.navEl?.nativeElement.classList.add('scrolled'),
       onLeaveBack: () => this.navEl?.nativeElement.classList.remove('scrolled')

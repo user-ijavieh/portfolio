@@ -17,69 +17,49 @@ export class AboutComponent implements AfterViewInit, OnDestroy {
   @ViewChild('body') body!: ElementRef;
   @ViewChild('image') image!: ElementRef;
 
-  private triggers: ScrollTrigger[] = [];
+  private ctx: gsap.Context | null = null;
 
   ngAfterViewInit(): void {
+    document.addEventListener('st:ready', () => this.initAnimations(), { once: true });
+  }
+
+  private initAnimations(): void {
+    if (this.ctx) return;
     const section = this.aboutSection.nativeElement;
 
-    // Label fade up
-    const labelTl = gsap.from(this.label.nativeElement, {
-      y: 30,
-      opacity: 0,
-      duration: 1,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: section, start: 'top 78%', toggleActions: 'play none none none' }
-    });
-    if (labelTl.scrollTrigger) this.triggers.push(labelTl.scrollTrigger);
+    this.ctx = gsap.context(() => {
+      // Consolidated reveal: 1 trigger, sequential timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 72%',
+          toggleActions: 'play none none reset'
+        }
+      });
 
-    // Title fade left (asymmetric tension)
-    const titleTl = gsap.from(this.title.nativeElement, {
-      x: -60,
-      opacity: 0,
-      duration: 1.4,
-      delay: 0.1,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: section, start: 'top 75%', toggleActions: 'play none none none' }
-    });
-    if (titleTl.scrollTrigger) this.triggers.push(titleTl.scrollTrigger);
+      tl.from(this.label.nativeElement, { y: 20, opacity: 0, duration: 0.7, ease: 'power3.out' })
+        .from(this.title.nativeElement, { x: -40, opacity: 0, duration: 1.0, ease: 'power3.out' }, '-=0.4')
+        .from(this.body.nativeElement, { y: 30, opacity: 0, duration: 0.9, ease: 'power3.out' }, '-=0.6')
+        .from(this.image.nativeElement, { scale: 1.08, opacity: 0, duration: 1.2, ease: 'power2.out' }, '-=0.7');
 
-    // Body fade up
-    const bodyTl = gsap.from(this.body.nativeElement, {
-      y: 40,
-      opacity: 0,
-      duration: 1.2,
-      delay: 0.25,
-      ease: 'power3.out',
-      scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none none' }
-    });
-    if (bodyTl.scrollTrigger) this.triggers.push(bodyTl.scrollTrigger);
-
-    // Image scale-in with parallax
-    const imageTl = gsap.from(this.image.nativeElement, {
-      scale: 1.1,
-      opacity: 0,
-      duration: 1.6,
-      delay: 0.2,
-      ease: 'power2.out',
-      scrollTrigger: { trigger: section, start: 'top 70%', toggleActions: 'play none none none' }
-    });
-    if (imageTl.scrollTrigger) this.triggers.push(imageTl.scrollTrigger);
-
-    // Subtle parallax on image
-    const parallax = gsap.to(this.image.nativeElement.querySelector('img'), {
-      y: -60,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: section,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 1
+      // Separate parallax (needs its own scrub trigger)
+      const img = this.image.nativeElement.querySelector('img');
+      if (img) {
+        gsap.to(img, {
+          y: -60,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1
+          }
+        });
       }
     });
-    if (parallax.scrollTrigger) this.triggers.push(parallax.scrollTrigger);
   }
 
   ngOnDestroy(): void {
-    this.triggers.forEach(t => t.kill());
+    this.ctx?.revert();
   }
 }

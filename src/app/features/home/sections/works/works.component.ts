@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -14,72 +14,63 @@ gsap.registerPlugin(ScrollTrigger);
   templateUrl: './works.component.html',
   styleUrl: './works.component.scss'
 })
-export class WorksComponent implements OnInit, AfterViewInit, OnDestroy {
+export class WorksComponent implements AfterViewInit, OnDestroy {
   @ViewChild('worksSection') worksSection!: ElementRef;
-  @ViewChild('header') header!: ElementRef;
-  @ViewChild('grid') grid!: ElementRef;
 
   projects: Project[] = [];
-  private triggers: ScrollTrigger[] = [];
+  private ctx: gsap.Context | null = null;
 
-  constructor(private dataService: DataService) {}
-
-  ngOnInit(): void {
+  constructor(private dataService: DataService) {
     this.projects = this.dataService.getProjects();
   }
 
   ngAfterViewInit(): void {
-    this.initRevealAnimations();
+    document.addEventListener('st:ready', () => this.initAnimations(), { once: true });
   }
 
-  private initRevealAnimations(): void {
-    // Header reveal
-    gsap.from(this.header.nativeElement.children, {
-      y: 50,
-      opacity: 0,
-      duration: 1.2,
-      stagger: 0.1,
-      ease: 'power3.out',
-      scrollTrigger: {
-        trigger: this.worksSection.nativeElement,
-        start: 'top 80%',
-        toggleActions: 'play none none none'
-      }
-    });
+  private initAnimations(): void {
+    if (this.ctx || !this.worksSection?.nativeElement) return;
 
-    // Cards: clip-path reveal for images, fade-up for meta
-    const cards = this.grid.nativeElement.querySelectorAll('.work-card');
-    cards.forEach((card: HTMLElement, index: number) => {
-      const image = card.querySelector('.work-image') as HTMLElement;
-      const meta = card.querySelector('.work-meta') as HTMLElement;
+    const section = this.worksSection.nativeElement;
+    const cards = Array.from(section.querySelectorAll('.work-card')) as HTMLElement[];
+    if (!cards.length) return;
 
-      // Image clip-path reveal
-      const imgTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 85%',
-          toggleActions: 'play none none none'
-        }
+    this.ctx = gsap.context(() => {
+      const fromVariants: gsap.TweenVars[] = [
+        { opacity: 0, y: 70, scale: 0.96 },   // 0: featured — zoom-up
+        { opacity: 0, x: 55, y: 20 },          // 1: right — slide desde derecha
+        { opacity: 0, x: -45, y: 20 },         // 2: left — slide desde izquierda
+        { opacity: 0, x: 50, y: 30 },          // 3: right
+        { opacity: 0, y: 60, scale: 0.94 },    // 4: left — zoom-up suave
+        { opacity: 0, x: 45 },                 // 5: right — slide limpio
+      ];
+
+      const durations = [1.1, 0.9, 1.0, 0.9, 1.05, 0.85];
+      const eases = [
+        'power3.out', 'power2.out', 'power3.out',
+        'power2.out', 'power3.out', 'expo.out'
+      ];
+
+      cards.forEach((card, i) => {
+        const from = fromVariants[i] ?? { opacity: 0, y: 50 };
+        gsap.fromTo(card,
+          from,
+          {
+            opacity: 1, x: 0, y: 0, scale: 1,
+            duration: durations[i] ?? 0.9,
+            ease: eases[i] ?? 'power3.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 88%',
+              toggleActions: 'play none none reset'
+            }
+          }
+        );
       });
-
-      imgTl.from(image, {
-        clipPath: 'inset(100% 0 0 0)',
-        duration: 1.4,
-        delay: index * 0.08,
-        ease: 'power3.inOut'
-      })
-      .from(meta, {
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power3.out'
-      }, '-=0.6');
-
-      if (imgTl.scrollTrigger) this.triggers.push(imgTl.scrollTrigger);
     });
   }
 
   ngOnDestroy(): void {
-    this.triggers.forEach(t => t.kill());
+    this.ctx?.revert();
   }
 }
