@@ -5,15 +5,7 @@
   </div>
 
   <div class="experience-content">
-    <div class="experience-skills">
-      <h3 class="subsection-title">Tecnologías</h3>
-      <ul class="skills-list" #skillsList>
-        @for (skill of technicalSkills; track skill) {
-          <li class="skill-item">{{ skill }}</li>
-        }
-      </ul>
-    </div>
-
+    <!-- Timeline: horizontal layout on top -->
     <div class="experience-timeline" #timeline>
       <h3 class="subsection-title">Trayectoria</h3>
       <div class="timeline-track">
@@ -25,7 +17,32 @@
               <span class="timeline-period">{{ item.period }}</span>
               <h4 class="timeline-role">{{ item.role }}</h4>
               <span class="timeline-context">{{ item.context }}</span>
+              <p class="timeline-description">{{ item.description }}</p>
+              @if (item.tags.length) {
+                <div class="timeline-tags">
+                  @for (tag of item.tags; track tag) {
+                    <span class="timeline-tag">{{ tag }}</span>
+                  }
+                </div>
+              }
             </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Skills: 3 columns -->
+    <div class="experience-skills">
+      <h3 class="subsection-title">Tecnologías</h3>
+      <div class="skills-grid">
+        @for (category of skillCategories; track category.title) {
+          <div class="skills-column">
+            <h4 class="skills-category-title">{{ category.title }}</h4>
+            <ul class="skills-list">
+              @for (skill of category.skills; track skill) {
+                <li class="skill-item">{{ skill }}</li>
+              }
+            </ul>
           </div>
         }
       </div>

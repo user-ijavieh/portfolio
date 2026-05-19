@@ -13,30 +13,44 @@ gsap.registerPlugin(ScrollTrigger);
 export class ExperienceComponent implements AfterViewInit, OnDestroy {
   @ViewChild('experienceSection') experienceSection!: ElementRef;
   @ViewChild('header') header!: ElementRef;
-  @ViewChild('skillsList') skillsList!: ElementRef;
   @ViewChild('timeline') timeline!: ElementRef;
 
-  technicalSkills = [
-    'Angular', 'TypeScript', 'GSAP', 'Three.js', 'WebGL',
-    'SCSS', 'Tailwind CSS', 'Node.js', 'RxJS',
-    'Figma', 'Blender', 'GLSL'
+  skillCategories = [
+    {
+      title: 'Lenguajes y estilos',
+      skills: ['JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'HTML', 'CSS', 'SCSS']
+    },
+    {
+      title: 'Frontend',
+      skills: ['Angular', 'React', 'GSAP', 'Three.js', 'Tailwind CSS']
+    },
+    {
+      title: 'Backend y herramientas',
+      skills: ['Node.js', 'NestJS', 'Docker', 'MongoDB', 'PostgreSQL', 'MCP', 'Git']
+    }
   ];
 
   timelineItems = [
     {
-      period: '2023 — Presente',
-      role: 'Desarrollador Creativo Senior',
-      context: 'Independiente'
+      period: 'Feb 2026 — Presente',
+      role: 'Desarrollador de Aplicaciones',
+      context: 'MCT — Prácticas DAW',
+      description: 'Sistema de rutas dinámicas con IA, asistente virtual con MCP propio + LibreChat, y gestión directa con cliente.',
+      tags: ['TypeScript', 'Angular', 'React', 'Tailwind CSS', 'NestJS', 'GSAP', 'Anime.js', 'Leaflet']
     },
     {
-      period: '2021 — 2023',
-      role: 'Ingeniero Frontend',
-      context: 'Agencia Digital'
+      period: 'Sept 2025 — Mayo 2026',
+      role: 'Líder Frontend',
+      context: 'Grupo Turing — TFG',
+      description: 'Lideré a 2 compañeros en el desarrollo del frontend e integré un microservicio MCP para contexto del chatbot.',
+      tags: ['Angular', 'TypeScript', 'NestJS', 'CSS', 'i18n']
     },
     {
-      period: '2019 — 2021',
-      role: 'Diseñador UI',
-      context: 'Estudio de Producto'
+      period: 'Sept 2024 — Mayo 2026',
+      role: 'Estudiante DAW',
+      context: 'IES Domingo Pérez Minik',
+      description: 'Ciclo Superior en Desarrollo de Aplicaciones Web. Base formativa en desarrollo web.',
+      tags: []
     }
   ];
 
@@ -51,7 +65,6 @@ export class ExperienceComponent implements AfterViewInit, OnDestroy {
     const section = this.experienceSection.nativeElement;
 
     this.ctx = gsap.context(() => {
-      // Single trigger for the whole section
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
@@ -64,21 +77,26 @@ export class ExperienceComponent implements AfterViewInit, OnDestroy {
         y: 40, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
       });
 
-      const skillEls = this.skillsList.nativeElement.querySelectorAll('.skill-item');
-      tl.from(skillEls, {
-        x: -20, opacity: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out'
-      }, '-=0.4');
-
+      // Timeline animations (horizontal)
       const line = this.timeline.nativeElement.querySelector('.timeline-line');
       const items = this.timeline.nativeElement.querySelectorAll('.timeline-item');
 
       tl.from(line, {
-        scaleY: 0, transformOrigin: 'top center', duration: 1.0, ease: 'power2.out'
+        scaleX: 0, transformOrigin: 'left center', duration: 1.0, ease: 'power2.out'
       }, '-=0.2');
-      // Items start at 40% of the line draw (0.6s after line starts, line total is 1.0s)
+
       tl.from(items, {
-        x: 30, opacity: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out'
+        y: 30, opacity: 0, duration: 0.9, stagger: 0.15, ease: 'power3.out'
       }, '-=0.6');
+
+      // Skills: animate each column with a slight delay between columns
+      const skillColumns = section.querySelectorAll('.skills-column');
+      skillColumns.forEach((col: Element, i: number) => {
+        const skillEls = col.querySelectorAll('.skill-item');
+        tl.from(skillEls, {
+          x: -20, opacity: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out'
+        }, `-=${0.4 - (i * 0.1)}`);
+      });
     });
   }
 
