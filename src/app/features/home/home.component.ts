@@ -4,7 +4,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 import { NavigationComponent } from '../../shared/components/navigation/navigation.component';
-import { FooterComponent } from '../../shared/components/footer/footer.component';
+
 import { PortalComponent } from './sections/portal/portal.component';
 import { WorksComponent } from './sections/works/works.component';
 import { AboutComponent } from './sections/about/about.component';
@@ -19,7 +19,6 @@ gsap.registerPlugin(ScrollTrigger);
   imports: [
     CommonModule,
     NavigationComponent,
-    FooterComponent,
     PortalComponent,
     WorksComponent,
     AboutComponent,
@@ -50,6 +49,14 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     const title = heroStage.querySelector('.portal-title') as HTMLElement;
     const scrollInd = heroStage.querySelector('.portal-scroll-wrap') as HTMLElement;
     const portalSection = heroStage.querySelector('.portal-section') as HTMLElement;
+
+    const bgText = heroStage.querySelector('.portal-bg-text') as HTMLElement;
+    const bgTextLine1 = heroStage.querySelector('.bg-text-line1') as HTMLElement;
+    const bgTextLine2 = heroStage.querySelector('.bg-text-line2') as HTMLElement;
+    const bgTextConnector = heroStage.querySelector('.bg-text-connector') as HTMLElement;
+    const bgTextBody = heroStage.querySelector('.bg-text-body') as HTMLElement;
+    const bgTextCta = heroStage.querySelector('.bg-text-cta') as HTMLElement;
+    const bgTextMeta = heroStage.querySelector('.bg-text-meta') as HTMLElement;
 
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -111,6 +118,58 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     }
 
     /* ── Phase 2: Hold on wallpaper (40% - 65%) ── */
+    /* Textos de wallpaper-2 aparecen con stagger */
+    if (bgTextLine1) {
+      tl.fromTo(bgTextLine1,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, ease: 'power2.out', duration: 0.12 },
+        0.40
+      );
+    }
+    if (bgTextLine2) {
+      tl.fromTo(bgTextLine2,
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, ease: 'power2.out', duration: 0.12 },
+        0.42
+      );
+    }
+    if (bgTextConnector) {
+      tl.fromTo(bgTextConnector,
+        { opacity: 0 },
+        { opacity: 1, ease: 'power2.out', duration: 0.10 },
+        0.44
+      );
+    }
+    if (bgTextBody) {
+      tl.fromTo(bgTextBody,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, ease: 'power2.out', duration: 0.10 },
+        0.46
+      );
+    }
+    if (bgTextCta) {
+      tl.fromTo(bgTextCta,
+        { opacity: 0, scale: 0.9 },
+        { opacity: 1, scale: 1, ease: 'power2.out', duration: 0.10 },
+        0.48
+      );
+    }
+    if (bgTextMeta) {
+      tl.fromTo(bgTextMeta,
+        { opacity: 0 },
+        { opacity: 1, ease: 'power2.out', duration: 0.08 },
+        0.50
+      );
+    }
+
+    /* Textos de wallpaper-2 desaparecen antes de la fase 3 */
+    if (bgText) {
+      tl.fromTo(bgText,
+        { opacity: 1 },
+        { opacity: 0, ease: 'power2.inOut', duration: 0.10 },
+        0.58
+      );
+    }
 
     /* ── Phase 3: Hero exits, content revealed (65% - 100%) ── */
     if (portalSection) {

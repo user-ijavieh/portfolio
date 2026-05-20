@@ -295,6 +295,96 @@
 
 }
 
+/* Wallpaper-2 text overlay — editorial layout, appears on scroll phase 2 */
+.portal-bg-text {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Título principal — esquina inferior izquierda */
+.bg-text-main {
+  position: absolute;
+  left: 5%;
+  bottom: 22%;
+}
+
+.bg-text-line1,
+.bg-text-line2 {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 9vw, 8rem);
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  text-shadow: 0 4px 50px rgba(0, 0, 0, 0.9), 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+/* "para" — pequeño, arriba-derecha del título */
+.bg-text-connector {
+  position: absolute;
+  top: -0.8em;
+  right: -1.5em;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 2vw, 2rem);
+  font-weight: 300;
+  font-style: italic;
+  color: #ffffff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Body text — debajo del título */
+.bg-text-body {
+  position: absolute;
+  left: 5%;
+  bottom: 8%;
+  max-width: 35ch;
+  font-size: var(--text-sm);
+  color: var(--text-light);
+  line-height: 1.6;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.8);
+}
+
+/* CTA circular — arriba a la derecha */
+.bg-text-cta {
+  position: absolute;
+  top: 15%;
+  right: 8%;
+  width: 120px;
+  height: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  text-align: center;
+
+  .cta-arrow {
+    font-size: 1rem;
+  }
+}
+
+/* Meta info — abajo a la derecha */
+.bg-text-meta {
+  position: absolute;
+  right: 5%;
+  bottom: 8%;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-align: right;
+}
+
 .portal-section.ready {
   /* No CSS transitions needed — everything is already visible behind the loader */
 }
