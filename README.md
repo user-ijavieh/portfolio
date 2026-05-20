@@ -1,59 +1,64 @@
-# PortfolioEditorial
+# Portfolio Editorial — Jerónimo Remedios
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.10.
+Portfolio personal con estética editorial y animaciones scroll-driven.
+Construido con Angular 21 y GSAP.
 
-## Development server
+## ✨ Características
 
-To start a local development server, run:
+- **Hero WebGL/Canvas** — Portal interactivo con partículas de código, efecto typewriter y easter eggs ocultos
+- **Scroll-driven animations** — Transiciones cinematográficas con GSAP ScrollTrigger (pin, scrub, snap)
+- **Diseño editorial** — Tipografía cuidada, espacio negativo, paleta oscura monocromática
+- **Secciones**: Proyectos, Sobre mí, Experiencia, Contacto
+- **5 proyectos reales**: SmartEconomato, Rutas Dinámicas, Asistente Virtual, GastroIA, PokeApi
+- **Responsive** con soporte para `prefers-reduced-motion`
 
-```bash
-ng serve
-```
+## 🛠 Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Framework**: Angular 21 (standalone components)
+- **Animaciones**: GSAP 3 + ScrollTrigger
+- **Estilos**: SCSS con design tokens (`src/styles/_tokens.scss`)
+- **Testing**: Vitest + JSDOM
+- **Build**: Angular CLI (`@angular/build`)
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## 🚀 Scripts
 
 ```bash
-ng build
+npm start      # Dev server en http://localhost:4200
+npm run build  # Build de producción
+npm test       # Tests con Vitest
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 📁 Estructura
 
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+```
+src/app/
+├── core/              # Modelos y servicios
+├── features/home/     # Página principal con secciones
+│   ├── sections/
+│   │   ├── portal/    # Hero WebGL
+│   │   ├── works/     # Proyectos
+│   │   ├── about/
+│   │   ├── experience/
+│   │   └── contact/
+│   └── home.component.ts  # Orchestrator scroll
+└── shared/            # Componentes reutilizables
 ```
 
-## Running end-to-end tests
+## 🎨 Decisiones de diseño
 
-For end-to-end (e2e) testing, run:
+- **Standalone components** sin NgModules
+- **AnimationService** centralizado para gestionar ScrollTriggers
+- **Design tokens** SCSS para consistencia tipográfica y de color
+- **Hero pinning** en 3 fases: zoom portal → wallpaper → wipe contenido
+- **Overlay hover** en tarjetas de proyectos con descripciones
 
-```bash
-ng e2e
-```
+## 📬 Contacto
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- **Email**: [jremedioscolmenares@gmail.com](mailto:jremedioscolmenares@gmail.com)
+- **GitHub**: [github.com/jremedios](https://github.com/jremedios)
+- **LinkedIn**: [linkedin.com/in/jremedios](https://linkedin.com/in/jremedios)
+- **Ubicación**: Tenerife, Islas Canarias
 
-## Additional Resources
+## 📄 Licencia
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Privado — uso personal.

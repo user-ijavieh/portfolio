@@ -36,7 +36,7 @@ export class DataService {
       category: 'Automatización de procesos',
       year: '2024',
       description: 'Flujo completo de restaurante con chatbot para pedidos y tablero Kanban en tiempo real para gestión de estados en cocina.',
-      image: '/images/projects/kanban.webp'
+      image: '/images/projects/GastroIA.jpeg'
     },
     {
       id: '05',
