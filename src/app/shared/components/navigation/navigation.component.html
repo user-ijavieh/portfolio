@@ -1,14 +1,39 @@
-<nav class="nav" #navEl [class.visible]="isVisible">
+<nav class="nav" #navEl [class.visible]="isVisible" [class.menu-open]="menuOpen">
   <div class="nav-brand" (click)="scrollToTop()">Javier Remedios</div>
+
+  <!-- Desktop links -->
   <ul class="nav-links nav-links-center">
     <li><a href="#works" (click)="scrollTo($event, 'works')">Proyectos</a></li>
     <li><a href="#about" (click)="scrollTo($event, 'about')">Sobre mí</a></li>
     <li><a href="#experience" (click)="scrollTo($event, 'experience')">Experiencia</a></li>
     <li><a href="#contact" (click)="scrollTo($event, 'contact')">Contacto</a></li>
   </ul>
+
   <ul class="nav-links nav-links-social">
     <li><a href="mailto:jremedioscolmenares@gmail.com" target="_blank" rel="noopener noreferrer">Gmail</a></li>
     <li><a href="https://github.com/user-ijavieh" target="_blank" rel="noopener noreferrer">Github</a></li>
     <li><a href="https://www.linkedin.com/in/javier-remedios/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
   </ul>
+
+  <!-- Mobile menu button -->
+  <button class="nav-menu-btn" (click)="toggleMenu()" [class.active]="menuOpen" aria-label="Menú">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <!-- Mobile menu overlay -->
+  <div class="nav-mobile-overlay" [class.open]="menuOpen">
+    <ul class="nav-mobile-links">
+      <li><a href="#works" (click)="scrollTo($event, 'works')">Proyectos</a></li>
+      <li><a href="#about" (click)="scrollTo($event, 'about')">Sobre mí</a></li>
+      <li><a href="#experience" (click)="scrollTo($event, 'experience')">Experiencia</a></li>
+      <li><a href="#contact" (click)="scrollTo($event, 'contact')">Contacto</a></li>
+    </ul>
+    <ul class="nav-mobile-social">
+      <li><a href="mailto:jremedioscolmenares@gmail.com" target="_blank" rel="noopener noreferrer">Gmail</a></li>
+      <li><a href="https://github.com/user-ijavieh" target="_blank" rel="noopener noreferrer">Github</a></li>
+      <li><a href="https://www.linkedin.com/in/javier-remedios/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+    </ul>
+  </div>
 </nav>

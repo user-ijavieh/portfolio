@@ -58,11 +58,13 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     const bgTextCta = heroStage.querySelector('.bg-text-cta') as HTMLElement;
     const bgTextMeta = heroStage.querySelector('.bg-text-meta') as HTMLElement;
 
+    const isMobile = window.innerWidth < 768;
+
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: heroStage,
         start: 'top top',
-        end: '+=250%',
+        end: isMobile ? '+=180%' : '+=250%',
         pin: true,
         scrub: 1.2,
         anticipatePin: 1,

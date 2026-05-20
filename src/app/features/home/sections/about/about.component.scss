@@ -227,6 +227,17 @@
 // ============================================
 // Responsive
 // ============================================
+@media (max-width: 1023px) and (min-width: 769px) {
+  .about-text-layer {
+    grid-column: 1 / 7;
+    padding-right: 1rem;
+  }
+
+  .about-image-layer {
+    grid-column: 6 / 13;
+  }
+}
+
 @media (max-width: 768px) {
   .about-editorial {
     display: flex;
@@ -284,5 +295,36 @@
   .stat-number {
     font-size: clamp(2.5rem, 10vw, 4rem);
     min-width: 3ch;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-section {
+    padding: var(--space-section-lg) 0;
+  }
+
+  .about-sprites {
+    top: -50px;
+
+    .sprite-trainer {
+      width: 50px;
+    }
+
+    .sprite-pokemon {
+      width: 24px;
+    }
+  }
+
+  .about-cintia-line .sprite-cintia {
+    width: 50px;
+    top: -32px;
+  }
+
+  .about-title {
+    font-size: var(--text-2xl);
+  }
+
+  .about-body p {
+    font-size: var(--text-sm);
   }
 }

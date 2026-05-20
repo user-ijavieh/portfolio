@@ -237,6 +237,13 @@
     gap: 4rem;
   }
 
+  .skills-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
   .timeline-track {
     flex-direction: column;
     padding-top: 0;
@@ -263,8 +270,30 @@
     top: 6px;
   }
 
-  .skills-grid {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+  .timeline-sprite {
+    top: -40px;
+
+    img {
+      width: 60px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .experience-section {
+    padding-top: var(--space-section-md);
+    padding-bottom: var(--space-section-sm);
+  }
+
+  .skills-sprite {
+    top: -10px;
+
+    img {
+      width: 50px;
+    }
+  }
+
+  .subsection-title {
+    font-size: var(--text-lg);
   }
 }

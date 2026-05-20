@@ -17,6 +17,7 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navEl') navEl!: ElementRef;
 
   isVisible = true;
+  menuOpen = false;
   private scrollTrigger?: ScrollTrigger;
 
   ngOnInit(): void {}
@@ -61,8 +62,19 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+    document.body.style.overflow = this.menuOpen ? 'hidden' : '';
+  }
+
+  closeMenu(): void {
+    this.menuOpen = false;
+    document.body.style.overflow = '';
+  }
+
   scrollTo(event: Event, sectionId: string): void {
     event.preventDefault();
+    this.closeMenu();
     const element = document.getElementById(sectionId);
     if (element) {
       gsap.to(window, {
@@ -74,6 +86,7 @@ export class NavigationComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   scrollToTop(): void {
+    this.closeMenu();
     gsap.to(window, {
       duration: 1.2,
       scrollTo: { y: 0 },

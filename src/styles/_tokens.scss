@@ -45,10 +45,10 @@
 // Spacing — Varied for rhythm
 // ============================================
 :root {
-  --space-section-sm: 8rem;
-  --space-section-md: 10rem;
-  --space-section-lg: 14rem;
-  --space-section-xl: 18rem;
+  --space-section-sm: clamp(4rem, 6vw, 8rem);
+  --space-section-md: clamp(5rem, 8vw, 10rem);
+  --space-section-lg: clamp(6rem, 10vw, 14rem);
+  --space-section-xl: clamp(8rem, 12vw, 18rem);
 
   --space-gutter: clamp(1.5rem, 4vw, 3rem);
   --space-max-width: 1400px;

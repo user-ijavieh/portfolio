@@ -388,3 +388,50 @@
 .portal-section.ready {
   /* No CSS transitions needed — everything is already visible behind the loader */
 }
+
+/* ─── Responsive: Portal text overlay ─── */
+@media (max-width: 480px) {
+  .bg-text-line1,
+  .bg-text-line2 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .bg-text-connector {
+    font-size: clamp(0.875rem, 3vw, 1.25rem);
+    right: -1em;
+    top: -0.6em;
+  }
+
+  .bg-text-body {
+    max-width: 90%;
+    font-size: var(--text-xs);
+    bottom: 6%;
+    line-height: 1.5;
+  }
+
+  .bg-text-cta {
+    width: 90px;
+    height: 90px;
+    font-size: 0.55rem;
+    top: 10%;
+    right: 5%;
+  }
+
+  .bg-text-meta {
+    font-size: 0.55rem;
+    right: 5%;
+    bottom: 4%;
+  }
+}
+
+@media (max-width: 1023px) and (min-width: 481px) {
+  .bg-text-body {
+    max-width: 28ch;
+  }
+
+  .bg-text-cta {
+    width: 100px;
+    height: 100px;
+    font-size: 0.55rem;
+  }
+}
