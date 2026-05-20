@@ -29,6 +29,8 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   @ViewChild('titleAmp') titleAmp!: ElementRef;
   @ViewChild('titleRight') titleRight!: ElementRef;
   @ViewChild('portalYear') portalYear!: ElementRef;
+  @ViewChild('typewriterText') typewriterText!: ElementRef;
+  @ViewChild('particleCanvas') particleCanvas!: ElementRef<HTMLCanvasElement>;
 
   portalState: PortalState = 'loading';
 
@@ -37,6 +39,21 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   private autoplayRetryCleanup: (() => void) | null = null;
   private isDestroyed = false;
   private chromaFramesRendered = 0;
+
+  // Typewriter state
+  private readonly typewriterString = 'Toca para entrar';
+  private typewriterIndex = 0;
+  private typewriterDirection: 'writing' | 'deleting' = 'writing';
+  private typewriterTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  // Particle system
+  private particleCtx: CanvasRenderingContext2D | null = null;
+  private particles: Particle[] = [];
+  private particleRafId: number | null = null;
+  private readonly particleSymbols = ['{ }', '< >', ';', '/', '*', '( )', '[ ]'];
+  private readonly particleCount = 40;
+  private easterEggImg: HTMLImageElement | null = null;
+  private readonly easterEggChance = 0.05; // 5% probability
 
   // WebGL resources
   private gl: WebGLRenderingContext | null = null;
@@ -54,6 +71,9 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
   constructor(private ngZone: NgZone) {}
 
   ngAfterViewInit(): void {
+    this.startTypewriter();
+    this.initParticles();
+
     const bgVideo = this.bgVideo.nativeElement;
     const chromaVideo = this.chromaVideo.nativeElement;
 
@@ -523,10 +543,147 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  private initParticles(): void {
+    const canvas = this.particleCanvas?.nativeElement;
+    if (!canvas) return;
+
+    this.particleCtx = canvas.getContext('2d');
+    if (!this.particleCtx) return;
+
+    this.resizeParticleCanvas();
+
+    // Preload easter egg SVG before creating particles
+    const img = new Image();
+    img.onload = () => {
+      if (this.isDestroyed) return;
+      this.easterEggImg = img;
+      this.createParticles();
+      this.ngZone.runOutsideAngular(() => {
+        this.renderParticles();
+      });
+    };
+    img.onerror = () => {
+      // If image fails to load, continue with text-only particles
+      this.createParticles();
+      this.ngZone.runOutsideAngular(() => {
+        this.renderParticles();
+      });
+    };
+    img.src = 'assets/easter-eggs/monster.svg';
+
+    window.addEventListener('resize', this.onParticleResize);
+  }
+
+  private onParticleResize = (): void => {
+    this.resizeParticleCanvas();
+  };
+
+  private resizeParticleCanvas(): void {
+    const canvas = this.particleCanvas?.nativeElement;
+    if (!canvas) return;
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + 'px';
+    canvas.style.height = h + 'px';
+
+    const ctx = this.particleCtx;
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+  }
+
+  private createParticles(): void {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    for (let i = 0; i < this.particleCount; i++) {
+      // 5% chance to use easter egg SVG instead of text
+      const isEasterEgg = this.easterEggImg !== null && Math.random() < this.easterEggChance;
+      this.particles.push(new Particle(
+        w,
+        h,
+        this.particleSymbols,
+        isEasterEgg ? this.easterEggImg : null
+      ));
+    }
+  }
+
+  private renderParticles(): void {
+    if (this.isDestroyed) return;
+
+    const ctx = this.particleCtx;
+    if (!ctx) return;
+
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+
+    ctx.clearRect(0, 0, w, h);
+
+    for (const p of this.particles) {
+      p.update(w, h);
+      p.draw(ctx);
+    }
+
+    this.particleRafId = requestAnimationFrame(() => this.renderParticles());
+  }
+
+  private startTypewriter(): void {
+    if (!this.typewriterText?.nativeElement) return;
+
+    const element = this.typewriterText.nativeElement;
+    const typeSpeed = 80;
+    const deleteSpeed = 40;
+    const pauseWrite = 1500;
+    const pauseDelete = 500;
+
+    const tick = () => {
+      if (this.isDestroyed) return;
+
+      if (this.typewriterDirection === 'writing') {
+        element.textContent = this.typewriterString.slice(0, this.typewriterIndex + 1);
+        this.typewriterIndex++;
+        if (this.typewriterIndex >= this.typewriterString.length) {
+          this.typewriterDirection = 'deleting';
+          this.typewriterTimeout = setTimeout(tick, pauseWrite);
+          return;
+        }
+        this.typewriterTimeout = setTimeout(tick, typeSpeed);
+      } else {
+        element.textContent = this.typewriterString.slice(0, this.typewriterIndex - 1);
+        this.typewriterIndex--;
+        if (this.typewriterIndex <= 0) {
+          this.typewriterDirection = 'writing';
+          this.typewriterTimeout = setTimeout(tick, pauseDelete);
+          return;
+        }
+        this.typewriterTimeout = setTimeout(tick, deleteSpeed);
+      }
+    };
+
+    tick();
+  }
+
   ngOnDestroy(): void {
     this.isDestroyed = true;
     this.triggers.forEach(t => t.kill());
     this.entranceTl?.kill();
+
+    window.removeEventListener('resize', this.onParticleResize);
+
+    if (this.particleRafId !== null) {
+      cancelAnimationFrame(this.particleRafId);
+      this.particleRafId = null;
+    }
+
+    if (this.typewriterTimeout) {
+      clearTimeout(this.typewriterTimeout);
+      this.typewriterTimeout = null;
+    }
 
     if (this.autoplayRetryCleanup) {
       this.autoplayRetryCleanup();
@@ -553,5 +710,91 @@ export class PortalComponent implements AfterViewInit, OnDestroy {
     }
 
     this.cleanupWebGL(true);
+  }
+}
+
+class Particle {
+  x: number;
+  y: number;
+  speedY: number;
+  speedX: number;
+  opacity: number;
+  size: number;
+  symbol: string;
+  swayPhase: number;
+  swaySpeed: number;
+  swayAmplitude: number;
+  image: HTMLImageElement | null;
+
+  constructor(w: number, h: number, symbols: string[], image: HTMLImageElement | null = null) {
+    this.image = image;
+    if (this.image) {
+      // Easter egg SVG: fixed larger size for visibility
+      this.size = 28;
+      this.symbol = '';
+    } else {
+      this.symbol = symbols[Math.floor(Math.random() * symbols.length)];
+      // Tamaño mixto: algunas grandes visibles, otras pequeñas de fondo
+      this.size = Math.random() < 0.3
+        ? Math.random() * 8 + 18   // 30% grandes: 18px - 26px
+        : Math.random() * 8 + 10;  // 70% normales: 10px - 18px
+    }
+    this.x = Math.random() * w;
+    // Distribuidas por toda la pantalla desde el inicio (incluso fuera por abajo)
+    this.y = Math.random() * (h * 1.4) - (h * 0.2);
+    this.speedY = -(Math.random() * 0.4 + 0.25); // suben lentamente
+    this.speedX = (Math.random() - 0.5) * 0.15; // drift suave horizontal
+    this.opacity = Math.random() * 0.2 + 0.15; // 0.15 - 0.35 para que se vean sobre fondo oscuro
+    this.swayPhase = Math.random() * Math.PI * 2;
+    this.swaySpeed = Math.random() * 0.012 + 0.006;
+    this.swayAmplitude = Math.random() * 0.6 + 0.4;
+  }
+
+  update(w: number, h: number): void {
+    this.y += this.speedY;
+    this.x += this.speedX + Math.sin(this.swayPhase) * this.swayAmplitude;
+    this.swayPhase += this.swaySpeed;
+
+    // Reset cuando sale por arriba → reaparece por abajo (fuera de pantalla)
+    if (this.y < -this.size * 2) {
+      this.y = h + this.size + Math.random() * 50;
+      this.x = Math.random() * w;
+    }
+
+    // Wrap horizontal
+    if (this.x < -this.size * 2) this.x = w + this.size;
+    if (this.x > w + this.size * 2) this.x = -this.size;
+  }
+
+  draw(ctx: CanvasRenderingContext2D): void {
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+
+    if (this.image) {
+      // Draw SVG image centered at particle position
+      const aspect = this.image.width / this.image.height;
+      const drawW = this.size * aspect;
+      const drawH = this.size;
+      ctx.drawImage(
+        this.image,
+        this.x - drawW / 2,
+        this.y - drawH / 2,
+        drawW,
+        drawH
+      );
+    } else {
+      // Color combinado: blanco base + toque de acento cálido
+      const r = 234 + (197 - 234) * 0.3;
+      const g = 234 + (164 - 234) * 0.3;
+      const b = 234 + (126 - 234) * 0.3;
+      ctx.fillStyle = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+
+      ctx.font = `${this.size}px var(--font-main)`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(this.symbol, this.x, this.y);
+    }
+
+    ctx.restore();
   }
 }

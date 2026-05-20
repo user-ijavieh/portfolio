@@ -1,9 +1,14 @@
 <section class="portal-section" #portalSection>
   <!-- Interaction overlay — always shows until user engages -->
   <div class="portal-loader" #loader>
+    <!-- Particle canvas inside loader: floating code symbols (base layer for easter egg SVGs) -->
+    <canvas #particleCanvas class="portal-particle-canvas"></canvas>
+
     <div class="portal-interaction-hint" #interactionHint>
-      <div class="hint-line"></div>
-      <span>Toca para entrar</span>
+      <div class="typewriter">
+        <span class="typewriter-text" #typewriterText></span>
+        <span class="typewriter-cursor">|</span>
+      </div>
     </div>
   </div>
 
