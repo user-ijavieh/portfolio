@@ -6,7 +6,7 @@
 
   <div class="works-grid" #grid>
     @for (project of projects; track project.id; let i = $index) {
-      <article class="work-card" [class.featured]="i === 0" [class.offset]="i % 2 === 1">
+      <article class="work-card" [class.featured]="i === 0" [class.offset]="i % 2 === 1" [class.img-right]="project.id === '05'" [class.img-left]="project.id === '03'">
         <div class="work-image-wrapper">
           <div class="work-image">
             <img [src]="project.image" [alt]="project.title" loading="lazy">

@@ -74,6 +74,7 @@
     height: 100%;
     object-fit: cover;
     will-change: transform;
+    transition: transform 0.8s var(--ease-out-expo);
   }
 }
 
@@ -87,6 +88,7 @@
   padding: 2rem;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.5s ease;
 }
 
 .work-desc {
@@ -96,7 +98,9 @@
   margin-bottom: 1.5rem;
   max-width: 40ch;
   opacity: 0;
+  transform: translateY(10px);
   will-change: transform, opacity;
+  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
 }
 
 .work-cta {
@@ -108,7 +112,9 @@
   text-transform: uppercase;
   color: var(--accent);
   opacity: 0;
+  transform: translateY(10px);
   will-change: transform, opacity;
+  transition: opacity 0.4s ease 0.1s, transform 0.4s var(--ease-out-expo) 0.1s;
 
   &::after {
     content: '\2192';
@@ -170,6 +176,34 @@
 .work-year {
   font-size: var(--text-sm);
   color: var(--text-dim);
+}
+
+.work-card.img-right .work-image img {
+  object-position: 5% center;
+}
+
+.work-card.img-left .work-image img {
+  object-position: 65% center;
+}
+
+.work-card:hover {
+  .work-image img {
+    transform: scale(1.05);
+  }
+
+  .work-overlay {
+    opacity: 1;
+  }
+
+  .work-desc {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .work-cta {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // Reduced motion: contenido siempre visible y accesible
