@@ -91,6 +91,22 @@
   gap: 2.5rem;
 }
 
+.contact-sprite {
+  position: absolute;
+  right: -350px;
+  top: 65%;
+  transform: translateY(-50%);
+  z-index: 2;
+  pointer-events: none;
+
+  img {
+    width: 140px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
 .social-link {
   font-size: var(--text-sm);
   color: var(--text-dim);

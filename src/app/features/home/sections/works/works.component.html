@@ -23,6 +23,22 @@
             <span class="work-year">{{ project.year }}</span>
           </div>
         </div>
+
+        @if (project.id === '02') {
+          <div class="work-sprite sprite-oshawott">
+            <img src="assets/easter-eggs/pokemon/Oshawott_N2B2.gif" alt="Oshawott" />
+          </div>
+        }
+        @if (project.id === '04') {
+          <div class="work-sprite sprite-butterfree">
+            <img src="assets/easter-eggs/pokemon/Butterfree_shiny.gif" alt="Butterfree" />
+          </div>
+        }
+        @if (project.id === '05') {
+          <div class="work-sprite sprite-dragonite">
+            <img src="assets/easter-eggs/pokemon/Dragonite_NB.gif" alt="Dragonite" />
+          </div>
+        }
       </article>
     }
   </div>

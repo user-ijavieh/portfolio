@@ -65,6 +65,22 @@
   background: var(--border-subtle);
 }
 
+.timeline-sprite {
+  position: absolute;
+  left: 50%;
+  top: -90px;
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+
+  img {
+    width: 100px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
 .timeline-item {
   position: relative;
   display: flex;
@@ -151,6 +167,25 @@
   &:hover {
     color: var(--accent);
     border-color: var(--accent);
+  }
+}
+
+.experience-skills {
+  position: relative;
+}
+
+.skills-sprite {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  img {
+    width: 80px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
   }
 }
 

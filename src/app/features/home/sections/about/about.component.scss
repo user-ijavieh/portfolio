@@ -79,11 +79,13 @@
 }
 
 .about-body {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   max-width: 44ch;
   padding: 1.5rem;
+  padding-top: 3.5rem;
   background: rgba(5, 5, 5, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -94,6 +96,33 @@
     line-height: 1.7;
     color: var(--text-muted);
     margin: 0;
+  }
+}
+
+.about-sprites {
+  position: absolute;
+  top: -75px;
+  right: 1rem;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+
+  .sprite {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    height: auto;
+  }
+
+  .sprite-pokemon {
+    width: 32px;
+    z-index: 1;
+  }
+
+  .sprite-trainer {
+    width: 80px;
+    z-index: 2;
   }
 }
 
@@ -144,6 +173,22 @@
   pointer-events: none;
 }
 
+// --- Cintia sobre la línea de stats ---
+.about-cintia-line {
+  position: relative;
+  height: 0;
+
+  .sprite-cintia {
+    position: absolute;
+    top: -45px;
+    right: 0;
+    width: 72px;
+    height: auto;
+    image-rendering: pixelated;
+    z-index: 3;
+  }
+}
+
 // ============================================
 // Stats Grid
 // ============================================
@@ -151,7 +196,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-top: 1rem;
+  margin-top: calc(1rem + 17px);
   padding-top: 1rem;
   border-top: 1px solid var(--border-subtle);
 }

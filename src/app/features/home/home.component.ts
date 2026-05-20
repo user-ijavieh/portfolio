@@ -118,56 +118,65 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     }
 
     /* ── Phase 2: Hold on wallpaper (40% - 65%) ── */
-    /* Textos de wallpaper-2 aparecen con stagger */
+    /* Contenedor wallpaper-2 aparece */
+    if (bgText) {
+      tl.fromTo(bgText,
+        { opacity: 0 },
+        { opacity: 1, ease: 'power2.out', duration: 0.05 },
+        0.25
+      );
+    }
+
+    /* Textos de wallpaper-2 aparecen más temprano y duran más */
     if (bgTextLine1) {
       tl.fromTo(bgTextLine1,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, ease: 'power2.out', duration: 0.12 },
-        0.40
+        0.28
       );
     }
     if (bgTextLine2) {
       tl.fromTo(bgTextLine2,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, ease: 'power2.out', duration: 0.12 },
-        0.42
+        0.30
       );
     }
     if (bgTextConnector) {
       tl.fromTo(bgTextConnector,
         { opacity: 0 },
         { opacity: 1, ease: 'power2.out', duration: 0.10 },
-        0.44
+        0.32
       );
     }
     if (bgTextBody) {
       tl.fromTo(bgTextBody,
         { opacity: 0, y: 20 },
         { opacity: 1, y: 0, ease: 'power2.out', duration: 0.10 },
-        0.46
+        0.34
       );
     }
     if (bgTextCta) {
       tl.fromTo(bgTextCta,
         { opacity: 0, scale: 0.9 },
         { opacity: 1, scale: 1, ease: 'power2.out', duration: 0.10 },
-        0.48
+        0.36
       );
     }
     if (bgTextMeta) {
       tl.fromTo(bgTextMeta,
         { opacity: 0 },
         { opacity: 1, ease: 'power2.out', duration: 0.08 },
-        0.50
+        0.38
       );
     }
 
-    /* Textos de wallpaper-2 desaparecen antes de la fase 3 */
+    /* Textos de wallpaper-2 desaparecen más tarde, justo antes de la fase 3 */
     if (bgText) {
       tl.fromTo(bgText,
         { opacity: 1 },
         { opacity: 0, ease: 'power2.inOut', duration: 0.10 },
-        0.58
+        0.60
       );
     }
 

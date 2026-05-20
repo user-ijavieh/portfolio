@@ -1,7 +1,9 @@
 .works-section {
+  position: relative;
   padding: var(--space-section-lg) var(--space-gutter) var(--space-section-md);
   max-width: var(--space-max-width);
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .works-header {
@@ -36,6 +38,7 @@
 
 .work-card {
   grid-column: span 5;
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -204,6 +207,35 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+// --- Easter egg: Sprites de Pokémon en las tarjetas ---
+.work-sprite {
+  position: absolute;
+  top: -80px;
+  pointer-events: none;
+  z-index: 2;
+
+  img {
+    width: 80px;
+    height: auto;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+}
+
+.sprite-dragonite {
+  left: 1rem;
+  transform: scaleX(-1);
+}
+
+.sprite-oshawott {
+  right: 1rem;
+}
+
+.sprite-butterfree {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 // Reduced motion: contenido siempre visible y accesible
