@@ -1,27 +1,48 @@
 <section class="about-section" id="about" #aboutSection>
-  <div class="about-grid">
-    <div class="about-left">
-      <span class="section-label" #label>Sobre mí</span>
-      <h2 class="about-title" #title>
-        Construyendo interfaces<br>en la frontera del<br>diseño y el código
-      </h2>
-    </div>
-
-    <div class="about-right">
-      <div class="about-body" #body>
-        <p>
-          Trabajo con estudios y marcas que tratan la web como un oficio, no una mercancía.
-          Mi enfoque está en el movimiento, la tipografía y los pequeños detalles que hacen que
-          los espacios digitales se sientan intencionados.
-        </p>
-        <p>
-          Con sede en Madrid, colaborando de forma remota con equipos de toda Europa.
-          Seis años entregando trabajo que prioriza la experiencia sobre las tendencias.
-        </p>
+  <div class="about-container">
+    <div class="about-editorial">
+      <!-- Texto flotante que se superpone a la imagen -->
+      <div class="about-text-layer" #textLayer>
+        <span class="terminal-label">
+          > Sobre mí<span class="cursor">_</span>
+        </span>
+        <h2 class="about-title" #title>
+          <span class="word">Fullstack</span>
+          <span class="word">y</span>
+          <span class="word">cazador</span>
+          <span class="word">de</span>
+          <span class="word">bugs</span>
+        </h2>
+        <div class="about-body">
+          <p>
+            Desarrollador fullstack con 2 años de experiencia construyendo aplicaciones que no se rompen (bueno, casi siempre). Especializado en <span class="keyword">Angular</span>, <span class="keyword">NestJS</span> y el protocolo <span class="keyword">MCP</span>. Actualmente liderando la integración de <span class="keyword">IA</span> en STV Canarias, donde los asistentes virtuales y las arquitecturas <span class="keyword">MCP</span> son mi campo de batalla diario.
+          </p>
+          <p>
+            Aficionado a los detalles, los easter eggs bien escondidos y las soluciones elegantes. Si no estoy programando, estoy buscando la última monster o depurando mi vida. Viviendo en Tenerife con la cabeza en Venezuela.
+          </p>
+        </div>
       </div>
 
-      <div class="about-image" #image>
-        <img src="https://picsum.photos/seed/studio-portrait/800/1000" alt="Retrato de estudio" />
+      <!-- Imagen grande con overlay para legibilidad -->
+      <div class="about-image-layer" #imageLayer>
+        <img src="assets/images/about-me.jpeg" alt="Retrato de estudio" />
+        <div class="about-image-overlay"></div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="about-stats" #stats>
+      <div class="stat-item">
+        <span class="stat-number">5</span>
+        <span class="stat-label">Proyectos este año</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">2+</span>
+        <span class="stat-label">Años de experiencia</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">500+</span>
+        <span class="stat-label">Commits en 2026</span>
       </div>
     </div>
   </div>
