@@ -12,7 +12,7 @@ export class DataService {
       category: 'ERP Full-Stack',
       year: '2025',
       description: 'Sistema integral de gestión para economato escolar. Inventarios en tiempo real, pedidos, planificación semanal, predicciones con IA y ledger criptográfico.',
-      image: '/images/projects/SmartEconomato.jpeg'
+      image: 'images/projects/SmartEconomato.jpeg'
     },
     {
       id: '02',
@@ -20,7 +20,7 @@ export class DataService {
       category: 'Optimización logística',
       year: '2025',
       description: 'Generación inteligente de rutas empresariales mediante IA y conectores MCP. Visualización cartográfica con soporte para Canarias y Baleares.',
-      image: '/images/projects/RutasDinamicas.jpeg'
+      image: 'images/projects/RutasDinamicas.jpeg'
     },
     {
       id: '03',
@@ -28,7 +28,7 @@ export class DataService {
       category: 'Inteligencia artificial',
       year: '2025',
       description: 'Asistente conversacional empresarial con capacidad de razonamiento sobre datos internos mediante conectores MCP personalizados.',
-      image: '/images/projects/AsistenteVirtual.jpeg'
+      image: 'images/projects/AsistenteVirtual.jpeg'
     },
     {
       id: '04',
@@ -36,7 +36,7 @@ export class DataService {
       category: 'Automatización de procesos',
       year: '2024',
       description: 'Flujo completo de restaurante con chatbot para pedidos y tablero Kanban en tiempo real para gestión de estados en cocina.',
-      image: '/images/projects/GastroIA.jpeg'
+      image: 'images/projects/GastroIA.jpeg'
     },
     {
       id: '05',
@@ -44,7 +44,7 @@ export class DataService {
       category: 'Frontend',
       year: '2024',
       description: 'Aplicación interactiva para explorar datos de Pokémon. Primer proyecto con Angular, enfocado en el consumo de APIs REST y patrones de estado.',
-      image: '/images/projects/PokeApi.jpeg'
+      image: 'images/projects/PokeApi.jpeg'
     }
   ];
 

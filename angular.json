@@ -37,7 +37,8 @@
               "includePaths": [
                 "src/styles"
               ]
-            }
+            },
+            "baseHref": "/portfolio/"
           },
           "configurations": {
             "production": {
