@@ -196,20 +196,44 @@
   }
 }
 
+/* Tablet: smaller fonts to prevent overflow */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .nav-brand {
+    font-size: 1.1rem;
+  }
+
+  .nav-links-center {
+    gap: 1rem;
+
+    a {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+    }
+  }
+
+  .nav-links-social {
+    gap: 1.5rem;
+
+    a {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+    }
+  }
+}
+
 /* Responsive: collapse social links on narrow screens */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .nav {
     grid-template-columns: auto 1fr;
     padding: 1rem var(--space-gutter);
   }
 
   .nav-links-center {
-    justify-content: flex-end;
-    gap: 1.5rem;
+    display: none !important;
   }
 
   .nav-links-social {
-    display: none;
+    display: none !important;
   }
 }
 

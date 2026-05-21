@@ -136,8 +136,8 @@
 /* ─── Responsive ─── */
 @media (max-width: 767px) {
   .contact-sprite {
-    opacity: 0.25;
-    right: -100px;
+    opacity: 0.5;
+    right: -40px;
 
     img {
       width: 80px;
@@ -173,6 +173,13 @@
   }
 
   .contact-sprite {
-    display: none;
+    right: -20px;
+    top: auto;
+    bottom: 20%;
+    transform: translateY(0);
+
+    img {
+      width: 60px;
+    }
   }
 }
