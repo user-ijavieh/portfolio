@@ -161,7 +161,7 @@
   width: 75vw;
   max-width: 320px;
   z-index: 105;
-  background: rgba(5, 5, 5, 0.98);
+  background: #050505;
   backdrop-filter: blur(24px);
   flex-direction: column;
   align-items: flex-start;
@@ -250,6 +250,10 @@
     padding: 1rem var(--space-gutter);
   }
 
+  .nav-brand {
+    justify-self: flex-end;
+  }
+
   .nav.menu-open {
     background: rgba(10, 10, 10, 0.95);
   }
@@ -264,7 +268,7 @@
 
   .nav-menu-btn {
     display: flex;
-    justify-self: flex-end;
+    justify-self: flex-start;
   }
 
   .nav-mobile-backdrop {
