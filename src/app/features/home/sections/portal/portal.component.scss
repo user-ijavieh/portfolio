@@ -292,7 +292,29 @@
       margin: 0.25rem 0;
     }
   }
+}
 
+@media (max-width: 480px) {
+  .portal-title {
+    justify-content: flex-start;
+    padding-top: 15vh;
+    gap: 0.25rem;
+
+    .title-small {
+      font-size: var(--text-base);
+      margin-bottom: 0.25rem;
+    }
+
+    .title-left,
+    .title-right {
+      font-size: clamp(2rem, 10vw, 3rem);
+    }
+
+    .title-amp {
+      font-size: var(--text-lg);
+      margin: 0.15rem 0;
+    }
+  }
 }
 
 /* Wallpaper-2 text overlay — editorial layout, appears on scroll phase 2 */
