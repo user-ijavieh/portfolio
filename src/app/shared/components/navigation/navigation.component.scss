@@ -134,18 +134,13 @@
   }
 }
 
-/* Mobile overlay */
-.nav-mobile-overlay {
+/* Mobile backdrop */
+.nav-mobile-backdrop {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 105;
-  background: rgba(5, 5, 5, 0.97);
-  backdrop-filter: blur(20px);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
+  z-index: 104;
+  background: rgba(0, 0, 0, 0.6);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s ease;
@@ -156,16 +151,43 @@
   }
 }
 
+/* Mobile side drawer */
+.nav-mobile-drawer {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 75vw;
+  max-width: 320px;
+  z-index: 105;
+  background: rgba(5, 5, 5, 0.98);
+  backdrop-filter: blur(24px);
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 6rem 2.5rem 2rem;
+  gap: 3rem;
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-out-expo);
+  box-shadow: 8px 0 40px rgba(0, 0, 0, 0.4);
+
+  &.open {
+    transform: translateX(0);
+  }
+}
+
 .nav-mobile-links {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2rem;
+  align-items: flex-start;
+  gap: 1.5rem;
   list-style: none;
+  width: 100%;
 
   a {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 6vw, 2.5rem);
+    font-size: clamp(1.5rem, 5vw, 2rem);
     color: var(--text-light);
     letter-spacing: 0.02em;
     transition: color 0.3s ease;
@@ -178,7 +200,7 @@
 
 .nav-mobile-social {
   display: flex;
-  gap: 2.5rem;
+  gap: 2rem;
   list-style: none;
 
   a {
@@ -221,11 +243,15 @@
   }
 }
 
-/* Responsive: collapse social links on narrow screens */
+/* Responsive: collapse social links and show hamburger on narrow screens */
 @media (max-width: 767px) {
   .nav {
     grid-template-columns: auto 1fr;
     padding: 1rem var(--space-gutter);
+  }
+
+  .nav.menu-open {
+    background: rgba(10, 10, 10, 0.95);
   }
 
   .nav-links-center {
@@ -235,24 +261,17 @@
   .nav-links-social {
     display: none !important;
   }
-}
-
-/* Mobile: show hamburger, hide desktop links, show overlay */
-@media (max-width: 640px) {
-  .nav {
-    grid-template-columns: auto 1fr;
-  }
-
-  .nav-links-center {
-    display: none;
-  }
 
   .nav-menu-btn {
     display: flex;
     justify-self: flex-end;
   }
 
-  .nav-mobile-overlay {
+  .nav-mobile-backdrop {
+    display: block;
+  }
+
+  .nav-mobile-drawer {
     display: flex;
   }
 }

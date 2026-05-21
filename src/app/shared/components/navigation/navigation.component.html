@@ -22,8 +22,11 @@
     <span></span>
   </button>
 
-  <!-- Mobile menu overlay -->
-  <div class="nav-mobile-overlay" [class.open]="menuOpen">
+  <!-- Mobile backdrop -->
+  <div class="nav-mobile-backdrop" [class.open]="menuOpen" (click)="closeMenu()"></div>
+
+  <!-- Mobile side drawer -->
+  <div class="nav-mobile-drawer" [class.open]="menuOpen">
     <ul class="nav-mobile-links">
       <li><a href="#works" (click)="scrollTo($event, 'works')">Proyectos</a></li>
       <li><a href="#about" (click)="scrollTo($event, 'about')">Sobre mí</a></li>

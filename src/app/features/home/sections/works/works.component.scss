@@ -300,8 +300,20 @@
     margin-top: 0;
   }
 
-  .work-sprite img {
-    width: 60px;
+  .work-sprite {
+    top: -50px;
+
+    img {
+      width: 60px;
+    }
+  }
+
+  .sprite-dragonite {
+    left: 0.5rem;
+  }
+
+  .sprite-oshawott {
+    right: 0.5rem;
   }
 }
 
