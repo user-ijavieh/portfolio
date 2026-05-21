@@ -45,3 +45,10 @@ Thumbs.db
 
 cloudflared-error.log
 cloudflared-output.log
+
+# AI assistant files
+CLAUDE.md
+Product.md
+CLAUDE.mdc
+Product.mdc
+*.mdc
